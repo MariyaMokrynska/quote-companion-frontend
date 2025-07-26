@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { supabase } from "./services/supabaseClient";
 import './App.css';
 import Login from './auth/Login';
-import SignUp from './auth/SignUp';
+import SignUp from './auth/Signup';
 
 function Home() {
   const [quotes, setQuotes] = useState([]);

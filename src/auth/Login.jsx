@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './AuthForm.css';
 import googleButton from '../assets/Continue_with_Google_button.svg';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
 
@@ -28,7 +29,7 @@ function Login() {
   return (
     <div className="auth-container">
       <div className="form-section">
-        <h2>Login</h2>
+        <h2 className="auth-title">Welcome Back</h2>
         <form onSubmit={handleLogin} className="auth-form">
           <input
             type="email"
@@ -37,31 +38,43 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="password-wrapper">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <span
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? '👁️' : '🙈'}
+            </span>
+          </div>
           {errorMsg && <p className="error">{errorMsg}</p>}
           <button type="submit">Log In</button>
         </form>
 
-        <img
-          src={googleButton}
-          alt="Continue with Google"
-          className="google-button"
-          onClick={handleGoogleLogin}
-          style={{ cursor: 'pointer', marginTop: '1rem', width: '100%' }}
-        />
-      </div>
-      <div className="visual-section">
-        <p>
-          Organize quotes that speak to you.
-          <br />
-          Receive a quote that understands.
-        </p>
+        <div className="forgot-password">
+          <Link to="/reset" className="bold-link">Forgot password?</Link>
+        </div>
+
+        <div className="center-align" style={{ margin: '1rem 0' }}>or</div>
+
+        <div className="google-button" onClick={handleGoogleLogin}>
+          <img
+            src={googleButton}
+            alt="Continue with Google"
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <div className="have-account center-align">
+          <span>Don't have an account? </span>
+          <Link to="/signup" className="bold-link">Sign up</Link>
+        </div>
       </div>
     </div>
   );
