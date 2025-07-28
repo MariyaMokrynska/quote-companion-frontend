@@ -5,6 +5,7 @@ import './App.css';
 import Login from './auth/Login';
 import SignUp from './auth/Signup';
 import LandingPage from './pages/LandingPage';
+import MyCollections from './pages/MyCollections';
 
 function Home() {
   const [quotes, setQuotes] = useState([]);
@@ -60,6 +61,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/landingPage" element={<LandingPage />} />
+        <Route path="/mycollections" element={<MyCollections />} />
       </Routes>
     </Router>
   );

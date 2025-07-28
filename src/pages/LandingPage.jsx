@@ -4,8 +4,58 @@ import pencilIcon from "../assets/pencil.png";
 import collectionIcon from "../assets/collection.png";
 import moodIcon from "../assets/mood.png";
 import trackerIcon from "../assets/tracker.png";
+import { Link } from "react-router-dom";
+// import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { supabase } from "../services/supabaseClient"; // adjust the path if needed
+
+
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const isLoggedIn = false; 
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchError, setSearchError] = useState(null);  
+  const [hasSearched, setHasSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSearch = async () => {
+      if (!searchTerm.trim()) {
+      // Don't search if empty term
+      return;
+    }
+    setSearchError(null);
+    setHasSearched(true);
+    setLoading(true); // Start loading
+
+  /* to allow searching by quote text */ 
+  const { data, error } = await supabase
+  .from("quote")
+  .select("*")
+  .or(`author.ilike.%${searchTerm}%,text.ilike.%${searchTerm}%`);
+
+
+/*   if (error) {
+    console.error("Search error:", error.message);
+    setSearchError("Failed to fetch quotes.");
+    setSearchResults([]);
+  } else {
+    setSearchResults(data);
+  } */
+ if (error) {
+      setSearchError("Failed to fetch quotes.");
+      setSearchResults([]);
+      console.error(error);
+    } else {
+      setSearchResults(data || []);
+    }
+     setLoading(false); // Done loading
+};
+
+
   return (
     <>
       {/* Navbar */}
@@ -34,14 +84,10 @@ export default function LandingPage() {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#!">
-                  Sign Up
-                </a>
+                <Link className="nav-link" to="/signup">Sign Up</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#!">
-                  Login
-                </a>
+                <Link className="nav-link" to="/login">Login</Link>
               </li>
             </ul>
           </div>
@@ -57,12 +103,19 @@ export default function LandingPage() {
                   Your personal quote library + emotional mirror
                 </h1>
                 <div className="d-grid gap-3 d-sm-flex justify-content-sm-center">
-                  <a
+                  <button
                     className="btn btn-primary btn-lg px-4 me-sm-3"
-                    href="#features"
+                    onClick={() => {
+                      if (isLoggedIn) {
+                        navigate("/mycollections");
+                      } else {
+                        navigate("/login");
+                      }
+                    }}
                   >
-                    Start Your Collection
-                  </a>
+                  Start Your Collection
+                  </button>
+
                   <a className="btn btn-outline-light btn-lg px-4" href="#!">
                     Try Mood Mirror
                   </a>
@@ -80,15 +133,21 @@ export default function LandingPage() {
         {/* Search Bar + Button aligned */}
         <div className="row mb-3">
           <div className="col-md-10">
-            <input
-              type="text"
-              className="form-control h-100"
-              placeholder="Search by keyword or phrase, e.g. love, Oscar Wilde, dreams and"
-              aria-label="Search"
-            />
+          <input
+            type="text"
+            className="form-control h-100"
+            placeholder="Search by keyword or phrase, e.g. love, Oscar Wilde, dreams or success"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           </div>
           <div className="col-md-2">
-            <button className="btn btn-primary w-100 h-100">Search</button>
+          <button
+            className="btn btn-primary w-100 h-100"
+            onClick={handleSearch}
+          >
+            Search
+          </button>
           </div>
         </div>
 
@@ -97,7 +156,7 @@ export default function LandingPage() {
           <div className="col-md-4 mb-2">
             <select className="form-select" aria-label="Author dropdown">
               <option defaultValue>Filter by Author</option>
-              <option value="1">Author 1</option>
+              <option value="1">Oscar Wilde</option>
               <option value="2">Author 2</option>
               <option value="3">Author 3</option>
             </select>
@@ -122,6 +181,56 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
+
+      {searchError && (
+  <div className="alert alert-danger mt-3">{searchError}</div>
+)}
+
+
+{/* Result rendering section */}
+{hasSearched && (
+  <section className="bg-dark py-4 mt-4">
+    <div className="container px-5 text-center">
+      {loading ? (
+        <p className="text-white fs-5">Searching...</p>
+      ) : searchResults.length > 0 ? (
+        <>
+          <h5 className="text-white fw-bold mb-4">Search Results:</h5>
+          <div className="row gx-3">
+            {searchResults.map((quote) => (
+              <div key={quote.id} className="col-12 mb-3">
+                <div
+                  className="p-3 rounded"
+                  style={{
+                    border: "1px solid rgba(173, 216, 230, 0.4)",
+                    backgroundColor: "rgba(173, 216, 230, 0.1)",
+                    color: "#e0f0ff",
+                  }}
+                >
+                  <p className="mb-1 fs-5 fst-italic">"{quote.text}"</p>
+                  <footer
+                    className="blockquote-footer"
+                    style={{ color: "rgba(224, 240, 255, 0.7)" }}
+                  >
+                    {quote.author || "Unknown Author"}
+                  </footer>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p className="text-white fs-5 fst-italic">
+          No quotes found matching your search.
+        </p>
+      )}
+    </div>
+  </section>
+)}
+
+
+
+
       {/* Features section */}
       <section id="features" className="py-5 border-bottom">
         <div className="container px-5 my-5">
