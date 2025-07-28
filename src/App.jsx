@@ -4,6 +4,7 @@ import { supabase } from "./services/supabaseClient";
 import './App.css';
 import Login from './auth/Login';
 import SignUp from './auth/Signup';
+import LandingPage from './pages/LandingPage';
 
 function Home() {
   const [quotes, setQuotes] = useState([]);
@@ -58,6 +59,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/landingPage" element={<LandingPage />} />
       </Routes>
     </Router>
   );
