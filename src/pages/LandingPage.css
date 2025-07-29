@@ -3740,6 +3740,11 @@ textarea.form-control-lg {
   display: block;
 }
 
+.no-margin-container {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 .navbar {
   --bs-navbar-padding-x: 0;
   --bs-navbar-padding-y: 0.5rem;

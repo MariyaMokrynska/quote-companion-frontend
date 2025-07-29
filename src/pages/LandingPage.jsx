@@ -58,8 +58,8 @@ export default function LandingPage() {
   return (
   <div className="landing-page-wrapper">
     {/* Navbar */}
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div className="container px-5">
+    <nav className="navbar navbar-expand navbar-dark bg-dark">
+      <div className="container-fluid px-5 no-margin-container">
         <div className="navbar-brand navbar-brand-custom">
           <span className="quote">Quote</span>{" "}
           <span className="companion">Companion</span>
@@ -72,9 +72,9 @@ export default function LandingPage() {
             <li className="nav-item">
               <a className="nav-link" href="#!">About</a>
             </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <a className="nav-link" href="#!">FAQ</a>
-            </li>
+            </li> */}
             <li className="nav-item">
               <Link className="nav-link" to="/signup">Sign Up</Link>
             </li>
