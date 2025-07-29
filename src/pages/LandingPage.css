@@ -106,6 +106,16 @@ body {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
+.landing-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.landing-main-content {
+  flex-grow: 1;
+}
+
 hr {
   margin: 1rem 0;
   color: inherit;
@@ -385,6 +395,7 @@ button,
 [type=button],
 [type=reset],
 [type=submit] {
+  appearance: button;
   -webkit-appearance: button;
 }
 button:not(:disabled),
@@ -443,6 +454,7 @@ legend + * {
 
 [type=search] {
   outline-offset: -2px;
+  appearance: textfield;
   -webkit-appearance: textfield;
 }
 
@@ -464,6 +476,7 @@ legend + * {
 
 ::file-selector-button {
   font: inherit;
+  appearance: button;
   -webkit-appearance: button;
 }
 
@@ -10852,4 +10865,8 @@ textarea.form-control-lg {
 
 .navbar-brand-custom .companion {
   color: #0d6efd; /* Bootstrap primary blue */
+}
+
+footer {
+  margin-top: auto;
 }
