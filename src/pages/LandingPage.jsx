@@ -23,28 +23,77 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async () => {
+  if (!searchTerm.trim()) return;
+
+  setSearchError(null);
+  setHasSearched(true);
+  setLoading(true);
+
+  try {
+    // Step 1: Search Supabase
+      const { data: localData, error } = await supabase
+        .from("quote")
+        .select("*")
+        .or(`author.ilike.%${searchTerm}%,text.ilike.%${searchTerm}%`);
+
+      if (error) {
+        console.error("Supabase error:", error);
+      }
+
+
+    let results = localData || [];
+
+    // Step 2: If no results or to combine, search ZenQuotes
+    if (results.length === 0) {
+      const zenKey = import.meta.env.VITE_ZEN_QUOTES_API_KEY;
+      const response = await fetch(
+      `https://zenquotes.io/api/quotes/${zenKey}&keyword=${encodeURIComponent(searchTerm)}`
+);
+
+      const apiData = await response.json();
+
+      if (!apiData || apiData.length === 0 || apiData.message) {
+        // API might return an error message in case of no result
+        setSearchResults([]);
+        setSearchError("No quotes found.");
+      } else {
+        // Format ZenQuotes data to match Supabase structure
+        const formattedQuotes = apiData.map((quote, index) => ({
+          id: `zen-${index}`,
+          text: quote.q,
+          author: quote.a || "Unknown",
+          source: "ZenQuotes"
+        }));
+        results = formattedQuotes;
+      }
+    }
+
+    setSearchResults(results);
+  } catch (err) {
+    console.error("Search error:", err);
+    setSearchError("An unexpected error occurred.");
+    setSearchResults([]);
+  }
+
+  setLoading(false);
+};
+
+
+/*   const handleSearch = async () => {
       if (!searchTerm.trim()) {
       // Don't search if empty term
       return;
     }
     setSearchError(null);
     setHasSearched(true);
-    setLoading(true); // Start loading
+    setLoading(true); // Start loading */
 
   /* to allow searching by quote text */ 
-  const { data, error } = await supabase
+/*   const { data, error } = await supabase
   .from("quote")
   .select("*")
-  .or(`author.ilike.%${searchTerm}%,text.ilike.%${searchTerm}%`);
+  .or(`author.ilike.%${searchTerm}%,text.ilike.%${searchTerm}%`); 
 
-
-/*   if (error) {
-    console.error("Search error:", error.message);
-    setSearchError("Failed to fetch quotes.");
-    setSearchResults([]);
-  } else {
-    setSearchResults(data);
-  } */
  if (error) {
       setSearchError("Failed to fetch quotes.");
       setSearchResults([]);
@@ -54,7 +103,7 @@ export default function LandingPage() {
     }
      setLoading(false); // Done loading
 };
-
+*/
   return (
   <div className="landing-page-wrapper">
     {/* Navbar */}
@@ -143,7 +192,7 @@ export default function LandingPage() {
         </div>
 
         {/* Dropdowns */}
-        <div className="row">
+{/*         <div className="row">
           <div className="col-md-4 mb-2">
             <select className="form-select" aria-label="Author dropdown">
               <option defaultValue>Filter by Author</option>
@@ -168,7 +217,7 @@ export default function LandingPage() {
               <option value="3">Interview</option>
             </select>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Error Message */}
@@ -184,7 +233,9 @@ export default function LandingPage() {
               <p className="text-white fs-5">Searching...</p>
             ) : searchResults.length > 0 ? (
               <>
-                <h5 className="text-white fw-bold mb-4">Search Results:</h5>
+                <h5 className="text-white fw-bold mb-4">
+                  Search Results ({searchResults.length})
+                </h5>
                 <div className="row gx-3">
                   {searchResults.map((quote) => (
                     <div key={quote.id} className="col-12 mb-3">
@@ -197,12 +248,9 @@ export default function LandingPage() {
                         }}
                       >
                         <p className="mb-1 fs-5 fst-italic">"{quote.text}"</p>
-                        <footer
-                          className="blockquote-footer"
-                          style={{ color: "rgba(224, 240, 255, 0.7)" }}
-                        >
+                        <footer className="blockquote-footer" style={{ color: "rgba(224, 240, 255, 0.7)" }}>
                           {quote.author || "Unknown Author"}
-                        </footer>
+                      </footer>
                       </div>
                     </div>
                   ))}
