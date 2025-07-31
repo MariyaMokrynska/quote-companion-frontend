@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { supabase } from "./services/supabaseClient";
-import './App.css';
+import { supabase } from './services/supabaseClient';
 import Login from './auth/Login';
 import SignUp from './auth/Signup';
 import LandingPage from './pages/LandingPage';
+import Dashboard from './pages/Dashboard';
+import MyQuotes from './pages/MyQuotes';
+import AddQuote from './pages/AddQuote';
+import MoodMirror from './pages/MoodMirror';
 import MyCollections from './pages/MyCollections';
+import About from './pages/MyCollections';
+import './App.css';
+
 
 function Home() {
   const [quotes, setQuotes] = useState([]);
@@ -61,7 +67,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/landingPage" element={<LandingPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/myquotes" element={<MyQuotes />} />
+        <Route path="/addquote" element={<AddQuote />} />
+        <Route path="/moodmirror" element={<MoodMirror />} />
         <Route path="/mycollections" element={<MyCollections />} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </Router>
   );
