@@ -1,5 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 import { Container, Navbar } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
@@ -9,6 +10,7 @@ import Footer from "../components/Footer";
 import "./Dashboard.css";
 
 function Dashboard() {
+  const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [randomQuote, setRandomQuote] = useState(null);
 
@@ -140,10 +142,38 @@ function Dashboard() {
           <div className="actions-section">
             <h5 className="text-center fw-bolder text-dark mb-4">Actions</h5>
             <div className="button-group">
-              <button className="btn btn-primary action-button">Add New Quote</button>
-              <button className="btn btn-primary action-button">View Collections</button>
-              <button className="btn btn-primary action-button">Search Quotes</button>
-              <button className="btn btn-primary action-button">Reflect Mood</button>
+              <button 
+                className="btn btn-primary action-button"
+                  onClick={() => {
+                      navigate("/addquote");
+                    } 
+                  }
+              >Add New Quote
+              </button>
+              <button 
+                className="btn btn-primary action-button"
+                  onClick={() => {
+                      navigate("/myquotes");
+                    } 
+                  }              
+              >View Collections
+              </button>
+              <button 
+                className="btn btn-primary action-button"
+                  onClick={() => {
+                      navigate("/search");
+                    } 
+                  }        
+              >Search Quotes
+              </button>
+              <button 
+                className="btn btn-primary action-button"
+                  onClick={() => {
+                      navigate("/moodmirror");
+                    } 
+                  }        
+              >Reflect Mood
+              </button>
             </div>
           </div>
         </div>

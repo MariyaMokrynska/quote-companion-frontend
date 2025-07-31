@@ -9,7 +9,10 @@ import MyQuotes from './pages/MyQuotes';
 import AddQuote from './pages/AddQuote';
 import MoodMirror from './pages/MoodMirror';
 import MyCollections from './pages/MyCollections';
-import About from './pages/MyCollections';
+import About from './pages/About';
+import SearchQuotes from './pages/SearchQuotes';
+
+
 import './App.css';
 
 
@@ -73,6 +76,7 @@ function App() {
         <Route path="/moodmirror" element={<MoodMirror />} />
         <Route path="/mycollections" element={<MyCollections />} />
         <Route path="/about" element={<About />} />
+        <Route path="/search" element={<SearchQuotes />} />
       </Routes>
     </Router>
   );
