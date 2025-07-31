@@ -12,49 +12,82 @@ import "./Dashboard.css";
 function Dashboard() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
+  const [quoteCount, setQuoteCount] = useState(0);
+  const [collectionCount, setCollectionCount] = useState(0);
+  const [favoriteCount, setFavoriteCount] = useState(0);
+  const [reflectionCount, setReflectionCount] = useState(0); 
   const [randomQuote, setRandomQuote] = useState(null);
 
   useEffect(() => {
-  const fetchRandomQuote = async () => {
-    try {
-      const zenKey = import.meta.env.VITE_ZEN_QUOTES_API_KEY;
-      const response = await fetch(`https://zenquotes.io/api/random/${zenKey}`);
-      const data = await response.json();
+    const fetchDashboardData = async () => {
+      try {
+        const zenKey = import.meta.env.VITE_ZEN_QUOTES_API_KEY;
 
-      if (data && Array.isArray(data) && data[0]) {
-        setRandomQuote({
-          text: data[0].q,
-          author: data[0].a || "Unknown",
-        });
+        // Fetch random quote
+        const response = await fetch(`https://zenquotes.io/api/random/${zenKey}`);
+        const data = await response.json();
+
+        if (data && Array.isArray(data) && data[0]) {
+          setRandomQuote({
+            text: data[0].q,
+            author: data[0].a || "Unknown",
+          });
+        }
+
+        // Fetch user
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) return;
+
+        // Fetch user name
+        const { data: userData, error: userError } = await supabase
+          .from("user")
+          .select("name")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (userData && userData.name) {
+          setUserName(userData.name);
+        } else if (userError) {
+          console.error("Failed to fetch user name:", userError.message);
+        }
+
+        // Fetch quote count
+        const { count: quoteTotal } = await supabase
+          .from("quote")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+        setQuoteCount(quoteTotal || 0);
+
+        // Fetch collection count
+        const { count: collectionTotal } = await supabase
+          .from("collection")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+        setCollectionCount(collectionTotal || 0);
+
+        // Fetch favorite count
+        const { count: favoriteTotal } = await supabase
+          .from("favorite")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+        setFavoriteCount(favoriteTotal || 0);
+
+        // Fetch reflection count
+        const { count: reflectionTotal } = await supabase
+          .from("mood_reflection")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+        setReflectionCount(reflectionTotal || 0);
+      } catch (error) {
+        console.error("Dashboard data fetch failed:", error);
       }
-    } catch (error) {
-      console.error("Failed to fetch random quote:", error);
-    }
-  };
+    };
 
-  const fetchUserName = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      const { data, error } = await supabase
-        .from("user")
-        .select("name")
-        .eq("id", user.id)
-        .maybeSingle()
-
-      if (data && data.name) {
-        setUserName(data.name);
-      } else if (error) {
-        console.error("Failed to fetch user name:", error.message);
-      }
-    }
-  };
-
-  fetchRandomQuote();
-  fetchUserName();
-}, []);
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="dashboard-layout">
@@ -94,10 +127,11 @@ function Dashboard() {
 
           {/* Statistics Cards */}
           <div className="row g-4">
-            {[{ statClass: "bg-info text-info", label: "Quotes Saved", value: "$24,589" },
-              { statClass: "bg-info text-info", label: "Favorites", value: "14,789" },
-              { statClass: "bg-info text-info", label: "Collections", value: "1,589" },
-              { statClass: "bg-info text-info", label: "Reflections Logged", value: "$45,289" }
+            {[
+              { statClass: "bg-info text-info", label: "Quotes Saved", value: quoteCount },
+              { statClass: "bg-info text-info", label: "Favorites", value: favoriteCount },
+              { statClass: "bg-info text-info", label: "Collections", value: collectionCount },
+              { statClass: "bg-info text-info", label: "Reflections Logged", value: reflectionCount },
             ].map((item, idx) => (
               <div className="col-12 col-md-6 col-lg-3" key={idx}>
                 <div className="card stat-card border-0 shadow-sm">
@@ -109,6 +143,7 @@ function Dashboard() {
               </div>
             ))}
           </div>
+
 
           {/* Activity Section */}
           <h5 className="card-title mb-0">
