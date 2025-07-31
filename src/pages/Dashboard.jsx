@@ -10,30 +10,49 @@ import "./Dashboard.css";
 
 function Dashboard() {
   const [userName, setUserName] = useState("");
+  const [randomQuote, setRandomQuote] = useState(null);
 
   useEffect(() => {
-    const fetchUserName = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  const fetchRandomQuote = async () => {
+    try {
+      const zenKey = import.meta.env.VITE_ZEN_QUOTES_API_KEY;
+      const response = await fetch(`https://zenquotes.io/api/random/${zenKey}`);
+      const data = await response.json();
 
-      if (user) {
-        const { data, error } = await supabase
-          .from("user")
-          .select("name")
-          .eq("id", user.id)
-          .single();
-
-        if (data && data.name) {
-          setUserName(data.name);
-        } else if (error) {
-          console.error("Failed to fetch user name:", error.message);
-        }
+      if (data && Array.isArray(data) && data[0]) {
+        setRandomQuote({
+          text: data[0].q,
+          author: data[0].a || "Unknown",
+        });
       }
-    };
+    } catch (error) {
+      console.error("Failed to fetch random quote:", error);
+    }
+  };
 
-    fetchUserName();
-  }, []);
+  const fetchUserName = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      const { data, error } = await supabase
+        .from("user")
+        .select("name")
+        .eq("id", user.id)
+        .maybeSingle()
+
+      if (data && data.name) {
+        setUserName(data.name);
+      } else if (error) {
+        console.error("Failed to fetch user name:", error.message);
+      }
+    }
+  };
+
+  fetchRandomQuote();
+  fetchUserName();
+}, []);
 
   return (
     <div className="dashboard-layout">
@@ -69,7 +88,6 @@ function Dashboard() {
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h1 className="display-6 fw-bolder text-dark mb-4">Welcome back, {userName}!</h1>
             {/* <h1 className="display-4 mb-0 text-dark">Welcome back, {userName}!</h1> */}
-
           </div>
 
           {/* Statistics Cards */}
@@ -95,31 +113,32 @@ function Dashboard() {
             Here’s a quote to brighten your day—save it if it speaks to you!
           </h5>
 
-          <div className="row mt-3">
-            <div className="col-12 col-md-6 mx-auto">
-              <div
-                className="p-3 rounded"
-                style={{
-                  border: "1px solid rgba(173, 216, 230, 0.4)",
-                  backgroundColor: "rgba(70, 97, 106, 0.1)",
-                  color: "rgba(14, 15, 15, 0.7)",
-                }}
-              >
-                {/* <p className="mb-1 fs-5 fst-italic">"{quote.text}"</p>
-                <footer className="blockquote-footer">
-                  {quote.author || "Unknown Author"}
-                </footer> */}
-                <p className="mb-1 fs-5 fst-italic">
-                  "You miss 100% of the shots you don't take."
-                </p>
-                <footer className="blockquote-footer">Wayne Gretzky</footer>
+            <div className="row mt-3">
+              <div className="col-12 col-md-6 mx-auto">
+                <div
+                  className="p-3 rounded"
+                  style={{
+                    border: "1px solid rgba(173, 216, 230, 0.4)",
+                    backgroundColor: "rgba(70, 97, 106, 0.1)",
+                    color: "rgba(14, 15, 15, 0.7)",
+                  }}
+                >
+                  {randomQuote ? (
+                    <>
+                      <p className="mb-1 fs-5 fst-italic">"{randomQuote.text}"</p>
+                      <footer className="blockquote-footer">{randomQuote.author}</footer>
+                    </>
+                  ) : (
+                    <p className="text-muted fst-italic">Loading inspirational quote...</p>
+                  )}
+
+                </div>
               </div>
             </div>
-          </div>
 
           {/* Actions section */}
           <div className="actions-section">
-            <h7 className="text-center fw-bolder text-dark mb-4">Actions</h7>
+            <h5 className="text-center fw-bolder text-dark mb-4">Actions</h5>
             <div className="button-group">
               <button className="btn btn-primary action-button">Add New Quote</button>
               <button className="btn btn-primary action-button">View Collections</button>
