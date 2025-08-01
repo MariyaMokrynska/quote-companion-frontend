@@ -7,6 +7,65 @@ import trackerIcon from "../assets/tracker.png";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient"; // adjust path if needed
 
+// Keywords list
+const keywordList = [
+  "Anxiety", "Change", "Choice", "Confidence", "Courage", "Death", "Dreams", "Excellence",
+  "Failure", "Fairness", "Fear", "Forgiveness", "Freedom", "Future", "Happiness", "Inspiration",
+  "Kindness", "Leadership", "Life", "Living", "Love", "Pain", "Past", "Success", "Time", "Today",
+  "Truth", "Work"
+];
+
+// Authors list
+const authorList = [
+  "A.a. Milne", "Abraham Lincoln", "Adi Da Samraj", "Alan Watts", "Albert Einstein", "Albus Dumbledore",
+  "Alexander Graham Bell", "Alexander Pope", "Alexandre Dumas", "Alfred Adler", "Amelia Earhart",
+  "Andrew Carnegie", "Andrew Hendrixson", "Anita Krizzan", "Anne Frank", "Anne Wilson Schaef",
+  "Aristophanes", "Aristotle", "Arnold Schwarzenegger", "Audrey Hepburn", "Ayn Rand", "Babe Ruth",
+  "Barack Obama", "Benjamin Franklin", "Benjamin Mays", "Bette Midler", "Betty White", "Beverly Sills",
+  "Bhagavad Gita", "Billie Jean King", "Bob Dylan", "Bob Marley", "Bob Proctor", "Bodhidharma",
+  "Brian Tracy", "Bruce Lee", "Buddha", "C. Sean Mcgee", "Candice Carpenter", "Carl Bard", "Carl Jung",
+  "Carlos Ruiz Zafon", "Carol Burnett", "Celestine Chua", "Charles Darwin", "Charles Dickens",
+  "Charles Spurgeon", "Charles Swindoll", "Charlie Chaplin", "Cherie Gilderbloom", "Cherralea Morgen",
+  "Chinese Proverb", "Christopher Columbus", "Christopher McCandless", "Christopher Reeve", "Coco Chanel",
+  "Colin Powell", "Colin R. Davis", "Confucius", "Conrad Hilton", "Criss Jami", "D. H. Lawrence",
+  "Dalai Lama", "Dale Carnegie", "Dan Brown", "Dan Millman", "David Brinkley", "Deepak Chopra",
+  "Deepam Chaterjee", "Denis Waitley", "Dogen", "Doug Ivester", "Dr. Seuss", "Dudley Field Malone",
+  "Earl Nightingale", "Eckhart Tolle", "Edgar Allan Poe", "Elbert Hubbard", "Eleanor Roosevelt",
+  "Elon Musk", "Elvis Presley", "Emily Dickinson", "Epictetus", "Eric Hoffer", "Estee Lauder",
+  "Euripides", "F. Scott Fitzgerald", "Franklin D. Roosevelt", "Franz Kafka", "G.i. Gurdjieff",
+  "Gabor Mate", "Gary Keller", "Genghis Khan", "George Addair", "George Bernard Shaw", "George Eliot",
+  "George Washington", "Gilbert Chesterton", "Grace Coddington", "Gurbaksh Chahal", "Gustave Flaubert",
+  "Hans Christian Andersen", "Harry S. Truman", "Helen Keller", "Henry David Thoreau", "Henry Ford",
+  "Henry Ward Beecher", "Heraclitus", "Herbert Hoover", "Herman Melville", "Herodotus",
+  "Honore de Balzac", "Huang Po", "Isaac Newton", "J.r.r. Tolkien", "Jack Butcher", "Jack Kerouac",
+  "Jack London", "James Allen", "James Cameron", "James Matthew Barrie", "Jeffrey Gitomer",
+  "Jiddu Krishnamurti", "Jim Rohn", "Joan Rivers", "Johann Wolfgang von Goethe", "John Carmack",
+  "John D. Rockefeller", "John Eliot", "John Lennon", "John Locke", "John Tukey", "John Wooden",
+  "Jon Kabat-Zinn", "Jonathan Swift", "Josh Waitzkin", "Joyce Meyer", "Judy Garland", "Kabir",
+  "Kahlil Gibran", "Kamal Ravikant", "Kenji Miyazawa", "Kenneth Branagh", "Kilian Jornet", "Lao Tzu",
+  "Laurence J. Peter", "Leo Tolstoy", "Leonardo da Vinci", "Les Brown", "Lily Tomlin", "Lin Yutang",
+  "Lolly Daskal", "Mae West", "Mahatma Gandhi", "Marcus Aurelius", "Margaret Mead", "Marilyn Monroe",
+  "Mark Manson", "Mark Twain", "Martin Luther", "Martin Luther King, Jr.", "Mary Engelbreit",
+  "Maxime Lagace", "Maya Angelou", "Meister Eckhart", "Michael Jordan", "Miguel de Cervantes",
+  "Ming-Dao Deng", "Morgan Wootten", "Morihei Ueshiba", "Mother Teresa", "Napoleon Hill",
+  "Naval Ravikant", "Neil Barringham", "Nelson Mandela", "Niccolo Machiavelli", "Nicolas Chamfort",
+  "Nikola Tesla", "Norman Vaughan", "Norman Vincent Peale", "Og Mandino", "Oprah Winfrey",
+  "Orison Swett Marden", "Oscar Wilde", "Osho", "Pablo Picasso", "Paramahansa Yogananda",
+  "Paulo Coelho", "Pema Chodron", "Peter A. Cohen", "Peter Drucker", "Plato", "Publilius Syrus",
+  "Ralph Marston", "Ralph Waldo Emerson", "Ray Bradbury", "Richard Bach", "Rita Mae Brown",
+  "Robert Browning", "Robert Collier", "Robert F. Kennedy", "Robert Frost", "Robert Greene",
+  "Robert Kiyosaki", "Robin Sharma", "Robin Williams", "Roger Lee", "Ronald Reagan",
+  "Rosa Nouchette Carey", "Roy T. Bennett", "Rumi", "Samuel Beckett", "Samuel Butler", "Sathya Sai Baba",
+  "Seneca", "Seungsahn", "Shahir Zag", "Shunryu Suzuki", "Sigmund Freud", "Simon Sinek", "Socrates",
+  "Sonia Ricotti", "Soren Kierkegaard", "Soyen Shaku", "Spencer Johnson", "St. Jerome", "Stephen Hawking",
+  "Stephen King", "Steve Harvey", "Steve Jobs", "Steve Maraboli", "Sun Tzu", "Sydney Smith", "T.s. Eliot",
+  "Theodore Roosevelt", "Thich Nhat Hanh", "Thomas Edison", "Thomas Jefferson", "Toni Morrison",
+  "Tony Robbins", "Unknown", "Vaclav Havel", "Vidal Sassoon", "Vince Lombardi", "Vincent van Gogh",
+  "Virginia Woolf", "Voltaire", "W. Clement Stone", "W.p. Kinsella", "Walt Disney", "Walt Whitman",
+  "Wayne Dyer", "Wayne Gretzky", "Will Rogers", "William Faulkner", "William James", "Winston Churchill",
+  "Woody Allen", "Yanni", "Yoko Ono", "Zen Proverb", "Zhuangzi", "Zig Ziglar"
+];
+
 export default function LandingPage() {
   const navigate = useNavigate();
   const isLoggedIn = false;
@@ -164,11 +223,69 @@ export default function LandingPage() {
           </div>
         </section>
 
+{/* Search Section */}
+{/* <div className="container my-2 mt-5">
+  <h4 className="text-center mb-4">Search Quotes</h4>
+  <div className="row g-2 align-items-center">
+    <div className="col-md-4">
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Search by keyword or author, e.g. love, Oscar Wilde"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    </div>
+
+    <div className="col-md-3">
+      <select
+        className="form-select"
+        aria-label="Search by Keyword"
+        onChange={(e) => {
+          if (e.target.value) setSearchTerm(e.target.value);
+        }}
+        value={keywordList.includes(searchTerm) ? searchTerm : ""}
+      >
+        <option value="">Search by Keyword</option>
+        {keywordList.map((keyword) => (
+          <option key={keyword} value={keyword}>
+            {keyword}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div className="col-md-3">
+      <select
+        className="form-select"
+        aria-label="Search by Author"
+        onChange={(e) => {
+          if (e.target.value) setSearchTerm(e.target.value);
+        }}
+        value={authorList.includes(searchTerm) ? searchTerm : ""}
+      >
+        <option value="">Search by Author</option>
+        {authorList.map((author) => (
+          <option key={author} value={author}>
+            {author}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div className="col-md-2 d-grid">
+      <button className="btn btn-primary" onClick={handleSearch}>
+        Search
+      </button>
+    </div>
+  </div>
+</div>
+ */}
         {/* Search Section */}
-        <div className="container my-2 mt-5">
+{/*         <div className="container my-2 mt-5">
           <h4 className="text-center mb-4">Search Quotes</h4>
           <div className="row mb-3">
-            <div className="col-md-10">
+            <div className="col-md-12 mb-2">
               <input
                 type="text"
                 className="form-control h-100"
@@ -176,14 +293,121 @@ export default function LandingPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+            </div>  */}
+            {/* Dropdowns for Keywords and Authors */}
+{/*             <div className="col-md-6 mb-2">
+              <select
+                className="form-select"
+                aria-label="Search by Keyword"
+                onChange={(e) => {
+                  if (e.target.value) setSearchTerm(e.target.value);
+                }}
+                value={keywordList.includes(searchTerm) ? searchTerm : ""}
+              >
+                <option value="">Search by Keyword</option>
+                {keywordList.map((keyword) => (
+                  <option key={keyword} value={keyword}>
+                    {keyword}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div className="col-md-2">
-              <button className="btn btn-primary w-100 h-100" onClick={handleSearch}>
+            <div className="col-md-6 mb-2">
+              <select
+                className="form-select"
+                aria-label="Search by Author"
+                onChange={(e) => {
+                  if (e.target.value) setSearchTerm(e.target.value);
+                }}
+                value={authorList.includes(searchTerm) ? searchTerm : ""}
+              >
+                <option value="">Search by Author</option>
+                {authorList.map((author) => (
+                  <option key={author} value={author}>
+                    {author}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-12">
+              <button className="btn btn-primary w-100" onClick={handleSearch}>
                 Search
               </button>
             </div>
           </div>
-        </div>
+        </div>  */}
+        
+{/* Search Section */}
+<div className="container my-2 mt-5">
+  <h4 className="text-center mb-4">Search Quotes</h4>
+
+  {/* Full-width Search Bar */}
+  <div className="row mb-3">
+    <div className="col-md-12">
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Search by keyword or author, e.g. love, Oscar Wilde"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ height: "48px" }} // uniform height
+      />
+    </div>
+  </div>
+
+  {/* Dropdowns + Search Button */}
+  <div className="row g-2">
+    <div className="col-md-5">
+      <select
+        className="form-select"
+        aria-label="Search by Keyword"
+        onChange={(e) => {
+          const value = e.target.value;
+          setSearchTerm(value);
+        }}
+        value={keywordList.includes(searchTerm) ? searchTerm : ""}
+        style={{ height: "48px" }}
+      >
+        <option value="">Select Keyword</option>
+        {keywordList.map((keyword) => (
+          <option key={keyword} value={keyword}>
+            {keyword}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div className="col-md-5">
+      <select
+        className="form-select"
+        aria-label="Search by Author"
+        onChange={(e) => {
+          const value = e.target.value;
+          setSearchTerm(value);
+        }}
+        value={authorList.includes(searchTerm) ? searchTerm : ""}
+        style={{ height: "48px" }}
+      >
+        <option value="">Select Author</option>
+        {authorList.map((author) => (
+          <option key={author} value={author}>
+            {author}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div className="col-md-2 d-grid">
+      <button
+        className="btn btn-primary"
+        onClick={handleSearch}
+        style={{ height: "48px" }}
+      >
+        Search
+      </button>
+    </div>
+  </div>
+</div>
 
         {/* Error Message */}
         {searchError && <div className="alert alert-danger mt-3">{searchError}</div>}
@@ -231,9 +455,7 @@ export default function LandingPage() {
                   )}
                 </>
               ) : (
-                <p className="text-white fs-5 fst-italic">
-                  No quotes found matching your search.
-                </p>
+                <p className="text-white fs-5">No quotes found for "{searchTerm}".</p>
               )}
             </div>
           </section>
