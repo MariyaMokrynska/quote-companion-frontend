@@ -5,7 +5,11 @@ html, body {
   overflow-x: hidden;
 }
 
-
+body {
+  display: flex;
+  justify-content: center;  /* horizontal centering */
+  align-items: center;      /* vertical centering */
+}
 
 #root {
   text-align: center;
