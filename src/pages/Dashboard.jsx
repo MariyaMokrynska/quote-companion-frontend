@@ -7,6 +7,7 @@ import { NavLink } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import routes from "../routes";
 import Footer from "../components/Footer";
+import AddQuote from "../components/AddQuote";
 import "./Dashboard.css";
 
 function Dashboard() {
@@ -179,11 +180,10 @@ function Dashboard() {
             <div className="button-group">
               <button 
                 className="btn btn-primary action-button"
-                  onClick={() => {
-                      navigate("/addquote");
-                    } 
-                  }
-              >Add New Quote
+                data-bs-toggle="modal"
+                data-bs-target="#addQuoteModal"
+              >
+                Add New Quote
               </button>
               <button 
                 className="btn btn-primary action-button"
@@ -211,7 +211,11 @@ function Dashboard() {
               </button>
             </div>
           </div>
+
+          {/* Add Quote Modal */}
+          <AddQuote />
         </div>
+        
         {/* Footer */}
         <Footer />
       </div>
