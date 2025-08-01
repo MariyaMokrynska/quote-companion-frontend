@@ -22,7 +22,7 @@ export default function LandingPage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = async () => {
+/*   const handleSearch = async () => {
   if (!searchTerm.trim()) return;
 
   setSearchError(null);
@@ -63,6 +63,90 @@ export default function LandingPage() {
           text: quote.q,
           author: quote.a || "Unknown",
           source: "ZenQuotes"
+        }));
+        results = formattedQuotes;
+      }
+    }
+
+    setSearchResults(results);
+  } catch (err) {
+    console.error("Search error:", err);
+    setSearchError("An unexpected error occurred.");
+    setSearchResults([]);
+  }
+
+  setLoading(false);
+}; */
+const handleSearch = async () => {
+  if (!searchTerm.trim()) return;
+
+  setSearchError(null);
+  setHasSearched(true);
+  setLoading(true);
+
+  try {
+    // Step 1: Search Supabase (case-insensitive)
+    const { data: localData, error } = await supabase
+      .from("quote")
+      .select("*")
+      .or(`author.ilike.%${searchTerm}%,text.ilike.%${searchTerm}%`);
+
+    if (error) {
+      console.error("Supabase error:", error);
+    }
+
+    let results = localData || [];
+
+    // Step 2: Fallback to ZenQuotes text search
+    if (results.length === 0) {
+      const zenKey = import.meta.env.VITE_ZEN_QUOTES_API_KEY;
+      const keyword = encodeURIComponent(searchTerm.toLowerCase());
+
+      let apiData = [];
+      let zenError = false;
+
+      try {
+        const response = await fetch(
+          `https://zenquotes.io/api/quotes/${zenKey}&keyword=${keyword}`
+        );
+        apiData = await response.json();
+
+        // Check if API returned error
+        if (!Array.isArray(apiData) || apiData.message) {
+          zenError = true;
+        }
+      } catch (e) {
+        zenError = true;
+        console.error("ZenQuotes keyword search failed:", e);
+      }
+
+      // Step 3: If keyword search fails or returns no results, try author search
+      if (zenError || apiData.length === 0) {
+        try {
+          const authorKeyword = searchTerm.toLowerCase().replace(/\s+/g, "-"); // e.g. "Oscar Wilde" -> "oscar-wilde"
+          const authorResponse = await fetch(
+            `https://zenquotes.io/api/quotes/author/${authorKeyword}/${zenKey}`
+          );
+
+          const authorData = await authorResponse.json();
+
+          if (Array.isArray(authorData) && authorData.length > 0) {
+            apiData = authorData;
+          }
+        } catch (e) {
+          console.error("ZenQuotes author search failed:", e);
+        }
+      }
+
+      if (!apiData || apiData.length === 0 || apiData.message) {
+        setSearchResults([]);
+        setSearchError("No quotes found.");
+      } else {
+        const formattedQuotes = apiData.map((quote, index) => ({
+          id: `zen-${index}`,
+          text: quote.q,
+          author: quote.a || "Unknown",
+          source: "ZenQuotes",
         }));
         results = formattedQuotes;
       }
