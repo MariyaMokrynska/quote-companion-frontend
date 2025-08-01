@@ -47,7 +47,7 @@ export default function LandingPage() {
     if (results.length === 0) {
       const zenKey = import.meta.env.VITE_ZEN_QUOTES_API_KEY;
       const response = await fetch(
-      `https://zenquotes.io/api/quotes/${zenKey}&keyword=${encodeURIComponent(searchTerm)}`
+  `https://zenquotes.io/api/quotes/${zenKey}&keyword=${encodeURIComponent(searchTerm.toLowerCase())}`
 );
 
       const apiData = await response.json();
