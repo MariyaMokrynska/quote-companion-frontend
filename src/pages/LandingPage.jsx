@@ -150,8 +150,7 @@ const handleSearch = async () => {
         }));
         results = formattedQuotes;
       }
-    }
-
+    } 
     setSearchResults(results);
   } catch (err) {
     console.error("Search error:", err);
@@ -257,7 +256,7 @@ const handleSearch = async () => {
             <input
               type="text"
               className="form-control h-100"
-              placeholder="Search by keyword or phrase, e.g. love, Oscar Wilde, dreams or success"
+              placeholder="Search by keyword or full author name, e.g. love, Oscar Wilde"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
