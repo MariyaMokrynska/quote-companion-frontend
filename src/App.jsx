@@ -10,6 +10,7 @@ import MoodMirror from './pages/MoodMirror';
 import MyCollections from './pages/MyCollections';
 import About from './pages/About';
 import SearchQuotes from './pages/SearchQuotes';
+import SearchResultsPage from './pages/SearchResults';
 
 import './App.css';
 
@@ -27,6 +28,7 @@ function App() {
         <Route path="/mycollections" element={<MyCollections />} />
         <Route path="/about" element={<About />} />
         <Route path="/search" element={<SearchQuotes />} />
+        <Route path="/search-results" element={<SearchResultsPage />} />
       </Routes>
     </Router>
   );
