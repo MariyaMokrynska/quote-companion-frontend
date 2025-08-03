@@ -5,7 +5,6 @@ import SignUp from './auth/Signup';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import MyQuotes from './pages/MyQuotes';
-import AddQuote from './components/AddQuote';
 import MoodMirror from './pages/MoodMirror';
 import MyCollections from './pages/MyCollections';
 import About from './pages/About';
@@ -23,8 +22,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/myquotes" element={<MyQuotes />} />
-        {/* <Route path="/addquote" element={<AddQuote />} /> */}
-        <Route path="/moodmirror" element={<MoodMirror />} />
+        <Route path="/mood-mirror" element={<MoodMirror />} />
         <Route path="/mycollections" element={<MyCollections />} />
         <Route path="/about" element={<About />} />
         <Route path="/search" element={<SearchQuotes />} />

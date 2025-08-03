@@ -1,31 +1,23 @@
 import React from "react";
-import { useLocation, NavLink } from "react-router-dom";
-import { Nav } from "react-bootstrap";
-import "./Sidebar.css";
+import { NavLink } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-const Sidebar = ({ color = "dark", routes = [] }) => {
-  const location = useLocation();
-
-  const activeRoute = (routeName) =>
-    location.pathname.includes(routeName) ? "active" : "";
-
+const Sidebar = ({ color, routes }) => {
   return (
-    <div className={`sidebar sidebar-${color}`}>
-      <div className="sidebar-wrapper">
-        <Nav className="flex-column">
+    <div
+      className={`bg-${color} position-fixed`}
+      style={{ width: "250px", minHeight: "100vh", left: 0, top: 0, zIndex: 1030 }}
+    >
+      <div className="p-3 mt-5">
+        <ul className="nav flex-column">
           {routes.map((prop, key) => {
             if (!prop.redirect) {
               return (
-                <li
-                  key={key}
-                  className={`nav-item ${
-                    prop.upgrade ? "active active-pro" : activeRoute(prop.layout + prop.path)
-                  }`}
-                >
+                <li key={key} className="nav-item text-start">
                   <NavLink
                     to={prop.path}
                     className={({ isActive }) =>
-                      isActive ? "nav-link fs-5 active" : "nav-link fs-5"
+                      isActive ? "nav-link active text-light fs-5" : "nav-link text-light fs-5"
                     }
                   >
                     {prop.name}
@@ -35,7 +27,7 @@ const Sidebar = ({ color = "dark", routes = [] }) => {
             }
             return null;
           })}
-        </Nav>
+        </ul>
       </div>
     </div>
   );

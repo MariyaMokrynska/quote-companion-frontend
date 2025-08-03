@@ -2,12 +2,11 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
-import { Container, Navbar } from "react-bootstrap";
-import { NavLink } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import routes from "../routes";
+import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AddQuote from "../components/AddQuote";
+import routes from "../routes";
 import "./Dashboard.css";
 
 function Dashboard() {
@@ -91,51 +90,39 @@ function Dashboard() {
   }, []);
 
   return (
-    <div className="dashboard-layout">
+    <div className="d-flex min-vh-100 w-100 overflow-hidden bg-light">
       {/* Sidebar */}
       <Sidebar color="black" routes={routes} />
 
       {/* Main content area */}
-      <div className="dashboard-main">
+      <div className="flex-grow-1 d-flex flex-column" style={{ marginLeft: "250px" }}>
         {/* Navbar */}
-        <Navbar bg="dark" variant="dark" expand="lg" className="dashboard-navbar">
-          <Container fluid className="justify-content-end">
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-              <ul className="navbar-nav mb-2 mb-lg-0">
-                <li className="nav-item">
-                  <NavLink className="nav-link" to="/">Home</NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink className="nav-link" to="/">About</NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink className="nav-link" to="/logout">Log Out</NavLink>
-                </li>
-              </ul>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
+        <Navbar />
 
         {/* Dashboard Content */}
-        <div className="main-content container-fluid py-4">
-
+        <div className="flex-grow-1 container-fluid py-4">
           {/* Header */}
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="display-6 fw-bolder text-dark mb-4">Welcome back, {userName}!</h1>
-            {/* <h1 className="display-4 mb-0 text-dark">Welcome back, {userName}!</h1> */}
+            <h1 className="display-6 fw-bolder text-dark mb-4">
+              Welcome back, {userName}!
+            </h1>
           </div>
 
           {/* Statistics Cards */}
           <div className="row g-4">
             {[
-              { statClass: "bg-info text-info", label: "Quotes Saved", value: quoteCount },
-              { statClass: "bg-info text-info", label: "Favorites", value: favoriteCount },
-              { statClass: "bg-info text-info", label: "Collections", value: collectionCount },
-              { statClass: "bg-info text-info", label: "Reflections Logged", value: reflectionCount },
+              { label: "Quotes Saved", value: quoteCount },
+              { label: "Favorites", value: favoriteCount },
+              { label: "Collections", value: collectionCount },
+              { label: "Reflections Logged", value: reflectionCount },
             ].map((item, idx) => (
               <div className="col-12 col-md-6 col-lg-3" key={idx}>
-                <div className="card stat-card border-0 shadow-sm">
+                <div
+                  className="card border-0 shadow-sm h-100"
+                  style={{ transition: "transform 0.3s", cursor: "pointer" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-5px)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = "none")}
+                >
                   <div className="card-body">
                     <h6 className="text-muted mb-2">{item.label}</h6>
                     <h4 className="mb-3">{item.value}</h4>
@@ -145,69 +132,61 @@ function Dashboard() {
             ))}
           </div>
 
-
           {/* Activity Section */}
-          <h5 className="card-title mb-0">
+          <h5 className="card-title mb-0 mt-5 text-center">
             Here’s a quote to brighten your day—save it if it speaks to you!
           </h5>
 
-            <div className="row mt-3">
-              <div className="col-12 col-md-6 mx-auto">
-                <div
-                  className="p-3 rounded"
-                  style={{
-                    border: "1px solid rgba(173, 216, 230, 0.4)",
-                    backgroundColor: "rgba(70, 97, 106, 0.1)",
-                    color: "rgba(14, 15, 15, 0.7)",
-                  }}
-                >
-                  {randomQuote ? (
-                    <>
-                      <p className="mb-1 fs-5 fst-italic">"{randomQuote.text}"</p>
-                      <footer className="blockquote-footer">{randomQuote.author}</footer>
-                    </>
-                  ) : (
-                    <p className="text-muted fst-italic">Loading inspirational quote...</p>
-                  )}
-
-                </div>
+          <div className="row mt-3">
+            <div className="col-12 col-md-6 mx-auto">
+              <div
+                className="p-3 rounded"
+                style={{
+                  border: "1px solid rgba(173, 216, 230, 0.4)",
+                  backgroundColor: "rgba(70, 97, 106, 0.1)",
+                  color: "rgba(14, 15, 15, 0.7)",
+                }}
+              >
+                {randomQuote ? (
+                  <>
+                    <p className="mb-1 fs-5 fst-italic">"{randomQuote.text}"</p>
+                    <footer className="blockquote-footer">{randomQuote.author}</footer>
+                  </>
+                ) : (
+                  <p className="text-muted fst-italic">Loading inspirational quote...</p>
+                )}
               </div>
             </div>
+          </div>
 
-          {/* Actions section */}
-          <div className="actions-section">
+          {/* Actions Section */}
+          <div className="d-flex flex-column align-items-center justify-content-center mt-5 mb-5">
             <h5 className="text-center fw-bolder text-dark mb-4">Actions</h5>
-            <div className="button-group">
-              <button 
-                className="btn btn-primary action-button"
+            <div className="d-flex flex-wrap justify-content-center gap-3">
+              <button
+                className="btn btn-primary fs-5 px-4 py-3"
                 data-bs-toggle="modal"
                 data-bs-target="#addQuoteModal"
               >
                 Add New Quote
               </button>
-              <button 
-                className="btn btn-primary action-button"
-                  onClick={() => {
-                      navigate("/myquotes");
-                    } 
-                  }              
-              >View Collections
+              <button
+                className="btn btn-primary fs-5 px-4 py-3"
+                onClick={() => navigate("/myquotes")}
+              >
+                View Collections
               </button>
-              <button 
-                className="btn btn-primary action-button"
-                  onClick={() => {
-                      navigate("/search");
-                    } 
-                  }        
-              >Search Quotes
+              <button
+                className="btn btn-primary fs-5 px-4 py-3"
+                onClick={() => navigate("/search")}
+              >
+                Search Quotes
               </button>
-              <button 
-                className="btn btn-primary action-button"
-                  onClick={() => {
-                      navigate("/moodmirror");
-                    } 
-                  }        
-              >Reflect Mood
+              <button
+                className="btn btn-primary fs-5 px-4 py-3"
+                onClick={() => navigate("/moodmirror")}
+              >
+                Reflect Mood
               </button>
             </div>
           </div>
@@ -215,7 +194,7 @@ function Dashboard() {
           {/* Add Quote Modal */}
           <AddQuote />
         </div>
-        
+
         {/* Footer */}
         <Footer />
       </div>
