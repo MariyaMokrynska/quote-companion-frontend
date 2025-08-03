@@ -7,7 +7,6 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AddQuote from "../components/AddQuote";
 import routes from "../routes";
-import "./Dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();

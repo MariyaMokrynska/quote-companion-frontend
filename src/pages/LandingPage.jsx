@@ -164,7 +164,8 @@ export default function LandingPage() {
 
   return (
     // <div className="landing-page-wrapper">
-    <div className="flex-grow-1 d-flex flex-column" >
+    <div className="flex-grow-1 d-flex flex-column min-vh-100">
+  
 
       {/* Navbar */}
       <nav className="navbar navbar-expand navbar-dark bg-dark">
@@ -215,9 +216,12 @@ export default function LandingPage() {
                     >
                       Start Your Collection
                     </button>
-                    <a className="btn btn-outline-light btn-lg px-4" href="#!">
+                    <button
+                      className="btn btn-outline-light btn-lg px-4"
+                      onClick={() => navigate("/mood-mirror")}
+                    >
                       Try Mood Mirror
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
