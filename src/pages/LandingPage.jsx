@@ -163,7 +163,9 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="landing-page-wrapper">
+    // <div className="landing-page-wrapper">
+    <div className="flex-grow-1 d-flex flex-column" >
+
       {/* Navbar */}
       <nav className="navbar navbar-expand navbar-dark bg-dark">
         <div className="container-fluid px-5 no-margin-container">
