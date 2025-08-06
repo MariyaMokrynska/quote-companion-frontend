@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { supabase } from "../services/supabaseClient";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import AddQuote from "../components/AddQuote";
 import routes from "../routes";
 
 // Fetch quotes from ZenQuotes
@@ -33,26 +35,32 @@ const MoodMirror = () => {
   const [quoteOptions, setQuoteOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showAddQuoteModal, setShowAddQuoteModal] = useState(false);
+  const [selectedQuote, setSelectedQuote] = useState(null); // To pass to modal
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [showReflectionToast, setShowReflectionToast] = useState(false);
 
   // const navigate = useNavigate();
 
   const handleReflect = async () => {
-  console.log("Anon Key from Vite:", import.meta.env.VITE_SUPABASE_KEY); // Debug line
+    // console.log("Anon Key from Vite:", import.meta.env.VITE_SUPABASE_KEY); // Debug line
 
-  setError("");
-  setLoading(true);
-  setQuoteOptions([]);
-  setLabels([]);
+    setError("");
+    setLoading(true);
+    setQuoteOptions([]);
+    setLabels([]);
 
-  try {
-    const response = await fetch("https://zgpibmkkqcflsxodryol.functions.supabase.co/mood-mirror", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_KEY}`, // Moved into headers ✅
-      },
-      body: JSON.stringify({ text: reflection }),
-    });
+    try {
+      const response = await fetch(
+        "https://zgpibmkkqcflsxodryol.functions.supabase.co/mood-mirror", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_KEY}`, 
+          },
+          body: JSON.stringify({ text: reflection }),
+        }
+      );
 
       const responseText = await response.text();
       console.log("Function response text:", responseText);
@@ -67,10 +75,8 @@ const MoodMirror = () => {
 
       const quoteResults = await fetchQuotesByKeywords(result.labels);
       setQuoteOptions(quoteResults);
+      setQuoteIndex(0);
 
-      setLabels(result.labels);
-
-      setQuoteOptions(quoteResults);
     } catch (err) {
       console.error("Mood Mirror Error:", err);
       setError("Something went wrong while processing your mood.");
@@ -78,6 +84,63 @@ const MoodMirror = () => {
       setLoading(false);
     }
   };
+
+  const handleReset = () => {
+    setReflection("");
+    setLabels([]);
+    setQuoteOptions([]);
+    setError("");
+  };
+
+  const handleSaveReflection = async () => {
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.error("User not found:", userError);
+      alert("User not found.");
+      return;
+    }
+
+    const primaryQuote = quoteOptions[0] || {};
+
+    const { error: insertError } = await supabase
+      .from("reflection")
+      .insert([
+        {
+          user_id: user.id,
+          text: reflection,
+          mood_labels: labels.join(", "),
+          quote_id: null, // if you store quotes separately, you can update this later
+          quote_text: primaryQuote.q || "",
+          quote_author: primaryQuote.a || "",
+          collection_id: null, // can be updated later
+          tags: labels.join(", "), // same as mood labels for now
+          confidence: null,
+        },
+      ]);
+
+    if (insertError) {
+      console.error("Error saving reflection:", insertError.message);
+      alert("Failed to save reflection.");
+      return;
+    }
+
+    setShowReflectionToast(true);
+    setTimeout(() => setShowReflectionToast(false), 3000);
+    
+    // Clear state
+    setReflection("");
+    setLabels([]);
+    setQuoteOptions([]);
+  } catch (err) {
+    console.error("Unexpected error saving reflection:", err);
+    alert("Something went wrong.");
+  }
+};
 
   return (
     <div className="d-flex">
@@ -87,7 +150,7 @@ const MoodMirror = () => {
       {/* Page Content Wrapper */}
       <div
         className="flex-grow-1 d-flex flex-column"
-        style={{ marginLeft: "250px", minHeight: "100vh" }}
+        style={{ marginLeft: "250px", minHeight: "100vh", position: "relative" }}
       >
         <Navbar />
 
@@ -140,23 +203,37 @@ const MoodMirror = () => {
                   ))}
                 </div>
               )}
-              <p className="fs-5 fst-italic">“{quoteOptions[0].q}”</p>
+              <p className="fs-5 fst-italic">“{quoteOptions[quoteIndex].q}”</p>
               <p className="text-muted text-center">
-                {quoteOptions[0].a || "Unknown"}
+                {quoteOptions[quoteIndex].a || "Unknown"}
               </p>
               <div className="d-flex justify-content-center gap-3 mt-3">
-                <button className="btn btn-outline-primary">
+                <button
+                  className="btn btn-outline-primary"
+                  onClick={handleSaveReflection}
+                  disabled={!reflection.trim() || quoteOptions.length === 0}
+                >
                   Save Reflection
                 </button>
-                <button className="btn btn-outline-success">
+                <button
+                  className="btn btn-outline-success"
+                  onClick={() => {
+                    setSelectedQuote(quoteOptions[0]);  // or any quote from quoteOptions
+                    setShowAddQuoteModal(true);
+                  }}
+                >
                   Add to My Quotes
                 </button>
-                <button className="btn btn-outline-secondary" onClick={() => {
-                  setQuoteOptions([]);
-                  setLabels([]);
-                  setReflection("");
-                }}>
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => {
+                    setQuoteIndex((prevIndex) => (prevIndex + 1) % quoteOptions.length);
+                  }}
+                >
                   Try Again
+                </button>
+                <button className="btn btn-outline-danger" onClick={handleReset}>
+                  Reset
                 </button>
               </div>
             </div>
@@ -167,6 +244,27 @@ const MoodMirror = () => {
               Go to my Past Reflections &gt;
             </a>
           </div>
+
+          {showAddQuoteModal && selectedQuote && (
+            <AddQuote
+              initialQuoteText={selectedQuote.q}
+              initialAuthor={selectedQuote.a}
+              initialTags={labels.join(", ")} // comma-separated labels
+              defaultCollectionId={""} // or pass "Mood Mirror Picks" collection ID here
+              onClose={() => setShowAddQuoteModal(false)}
+            />
+          )}
+
+          {showReflectionToast && (
+            // <div className="toast-container position-fixed top-50 start-50 translate-middle" style={{ zIndex: 2000 }}>
+            <div className="toast-container position-absolute top-50 start-50 translate-middle" style={{ zIndex: 2000 }}>
+              <div className="toast align-items-center text-white bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" style={{ minWidth: "250px" }}>
+                <div className="d-flex">
+                  <div className="toast-body text-center w-100">Reflection saved successfully!</div>
+                </div>
+              </div>
+            </div>
+          )}  
         </div>
 
         <Footer />

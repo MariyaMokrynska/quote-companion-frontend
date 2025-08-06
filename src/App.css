@@ -55,6 +55,20 @@ body {
   color: #888;
 }
 
+/* Override Bootstrap modal centering */
+#addQuoteModal .modal-dialog {
+  position: fixed;
+  top: 50%;
+  left: calc(250px + (100vw - 250px) / 2);
+  transform: translate(-50%, -50%);
+  margin: 0;
+  z-index: 1055;
+}
+
+.toast-container {
+  z-index: 3000 !important;
+}
+
 footer {
   margin-top: auto;
 }

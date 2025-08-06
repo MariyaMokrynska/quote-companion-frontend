@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { supabase } from './services/supabaseClient';
+// import { supabase } from './services/supabaseClient';
 import Login from './auth/Login';
 import SignUp from './auth/Signup';
 import LandingPage from './pages/LandingPage';
@@ -10,7 +10,6 @@ import MyCollections from './pages/MyCollections';
 import About from './pages/About';
 import SearchQuotes from './pages/SearchQuotes';
 import SearchResultsPage from './pages/SearchResults';
-
 import './App.css';
 
 function App() {
