@@ -21,10 +21,7 @@ export default function MyQuotesPage() {
   }, []);
 
   async function fetchQuotes() {
-    const {
-      data,
-      error
-    } = await supabase
+    const { data, error } = await supabase
       .from('quote')
       .select('*')
       .order('created_at', { ascending: false });
@@ -33,16 +30,48 @@ export default function MyQuotesPage() {
     else setQuotes(data);
   }
 
+  // ----- Icon Handlers -----
+  const handleEdit = (quote) => {
+    console.log('Edit:', quote);
+    // TODO: Open modal or navigate to edit page
+  };
+
+  const handleDelete = async (id) => {
+    const { error } = await supabase.from('quote').delete().eq('id', id);
+    if (error) {
+      console.error('Delete failed:', error);
+    } else {
+      setQuotes(prev => prev.filter(q => q.id !== id));
+    }
+  };
+
+  const handleFavorite = async (quote) => {
+    console.log('Favorite:', quote);
+    // TODO: Insert into "favorite" table
+  };
+
+  const handleAddToCollection = (quote) => {
+    console.log('Add to Collection:', quote);
+    // TODO: Open collection picker/modal
+  };
+
+  const handleViewCollection = (quote) => {
+    console.log('View Collection:', quote);
+    // TODO: Navigate or display collection info
+  };
+
+  const handleShare = (quote) => {
+    console.log('Share:', quote);
+    // TODO: Copy to clipboard or open share modal
+  };
+
   return (
     <div className="d-flex">
-      {/* Sidebar */}
       <Sidebar color="dark" routes={routes} />
 
-      {/* Page Content Wrapper */}
       <div className="flex-grow-1 d-flex flex-column" style={{ marginLeft: '250px', minHeight: '100vh' }}>
         <Navbar />
 
-        {/* Main Content */}
         <div className="flex-grow-1 p-4">
           <h2 className="text-center fw-bold">My Quotes</h2>
           <p className="text-center">Your personal collection of inspiration</p>
@@ -55,12 +84,12 @@ export default function MyQuotesPage() {
                 <span className="quote-timestamp">{formatDistanceToNow(new Date(quote.created_at), { addSuffix: true })}</span>
 
                 <div className="quote-actions">
-                  <FaEdit title="Edit" />
-                  <FaTrash title="Delete" />
-                  <FaHeart title="Favorite" />
-                  <FaPlusSquare title="Add to Collection" />
-                  <FaThLarge title="View Collection" />
-                  <FaShareAlt title="Share" />
+                  <FaEdit title="Edit" onClick={() => handleEdit(quote)} />
+                  <FaTrash title="Delete" onClick={() => handleDelete(quote.id)} />
+                  <FaHeart title="Favorite" onClick={() => handleFavorite(quote)} />
+                  <FaPlusSquare title="Add to Collection" onClick={() => handleAddToCollection(quote)} />
+                  <FaThLarge title="View Collection" onClick={() => handleViewCollection(quote)} />
+                  <FaShareAlt title="Share" onClick={() => handleShare(quote)} />
                 </div>
               </div>
             ))}
