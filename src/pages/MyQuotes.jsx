@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+// import { supabase } from '../services/supabaseClient'; // ✅ good
 import { formatDistanceToNow } from 'date-fns';
 import { FaEdit, FaTrash, FaHeart, FaPlusSquare, FaThLarge, FaShareAlt } from 'react-icons/fa';
 import Sidebar from '../components/Sidebar';

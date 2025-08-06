@@ -298,12 +298,21 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 import { Modal } from "bootstrap";
 import { supabase } from "../services/supabaseClient";
 
+// const AddQuote = ({
+//   initialQuoteText = "",
+//   initialAuthor = "",
+//   initialTags = "",
+//   defaultCollectionId = "",
+//   onClose,
+// }) => {
+
 const AddQuote = ({
+  show,
+  onClose,
   initialQuoteText = "",
   initialAuthor = "",
   initialTags = "",
   defaultCollectionId = "",
-  onClose,
 }) => {
 
   const [quoteText, setQuoteText] = useState(initialQuoteText);
@@ -341,13 +350,13 @@ const AddQuote = ({
     setSelectedCollectionId(defaultCollectionId);
   }, [initialQuoteText, initialAuthor, initialTags, defaultCollectionId]);
 
-  useEffect(() => {
-  const modalElement = document.getElementById("addQuoteModal");
-  if (modalElement) {
-    const modalInstance = new Modal(modalElement);
-    modalInstance.show();
-  }
-}, []);
+//   useEffect(() => {
+//   const modalElement = document.getElementById("addQuoteModal");
+//   if (modalElement) {
+//     const modalInstance = new Modal(modalElement);
+//     modalInstance.show();
+//   }
+// }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -440,19 +449,27 @@ const AddQuote = ({
 
   return (
     <>
-      <div className="modal fade" id="addQuoteModal" tabIndex="-1" aria-labelledby="addQuoteModalLabel" aria-hidden="true">
+      {/* <div className="modal fade" id="addQuoteModal" tabIndex="-1" aria-labelledby="addQuoteModalLabel" aria-hidden="true"> */}
+      <div
+        className={`modal fade ${show ? 'show d-block' : ''}`}
+        id="addQuoteModal"
+        tabIndex="-1"
+        aria-labelledby="addQuoteModalLabel"
+        aria-hidden={!show}
+        role="dialog"
+        style={{ backgroundColor: "rgba(0,0,0,0.5)" }} // optional backdrop style
+      >
         <div className="modal-dialog modal-xl modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header justify-content-center position-relative">
               <h5 className="modal-title text-center w-100 fw-bold" id="addQuoteModalLabel">
                 Add a New Quote
-              </h5>
+              </h5>        
               <button
                 type="button"
                 className="btn-close position-absolute top-0 end-0 m-3"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
+                onClick={onClose}
+              />
             </div>
             <div className="modal-body px-5">
               <form onSubmit={handleSubmit}>
@@ -568,14 +585,14 @@ const AddQuote = ({
       {showToast && (
         <div
           className="toast-container position-absolute top-50 start-50 translate-middle"
-          style={{ zIndex: 2000 }} // ✅ Correct placement of inline style
+          style={{ zIndex: 2000 }} 
         >
           <div
             className="toast align-items-center text-white bg-success border-0 show"
             role="alert"
             aria-live="assertive"
             aria-atomic="true"
-            style={{ minWidth: "250px" }} // ✅ Matches style from MoodMirror
+            style={{ minWidth: "250px" }} 
           >
             <div className="d-flex">
               <div className="toast-body text-center w-100">

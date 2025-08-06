@@ -16,6 +16,8 @@ function Dashboard() {
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [reflectionCount, setReflectionCount] = useState(0); 
   const [randomQuote, setRandomQuote] = useState(null);
+  const [showAddQuoteModal, setShowAddQuoteModal] = useState(false);
+
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -76,7 +78,7 @@ function Dashboard() {
 
         // Fetch reflection count
         const { count: reflectionTotal } = await supabase
-          .from("mood_reflection")
+          .from("reflection")
           .select("*", { count: "exact", head: true })
           .eq("user_id", user.id);
         setReflectionCount(reflectionTotal || 0);
@@ -164,8 +166,7 @@ function Dashboard() {
             <div className="d-flex flex-wrap justify-content-center gap-3">
               <button
                 className="btn btn-primary fs-5 px-4 py-3"
-                data-bs-toggle="modal"
-                data-bs-target="#addQuoteModal"
+                onClick={() => setShowAddQuoteModal(true)} 
               >
                 Add New Quote
               </button>
@@ -191,7 +192,12 @@ function Dashboard() {
           </div>
 
           {/* Add Quote Modal */}
-          <AddQuote />
+          {showAddQuoteModal && (
+            <AddQuote
+              show={showAddQuoteModal} // ✅ required to control modal visibility
+              onClose={() => setShowAddQuoteModal(false)} // ✅ tells modal how to close
+            />
+          )}
         </div>
 
         {/* Footer */}
