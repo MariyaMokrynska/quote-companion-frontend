@@ -21,7 +21,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/myquotes" element={<MyQuotes />} />
-        <Route path="/mood-mirror" element={<MoodMirror />} />
+        <Route path="/moodmirror" element={<MoodMirror />} />
         <Route path="/mycollections" element={<MyCollections />} />
         <Route path="/about" element={<About />} />
         <Route path="/search" element={<SearchQuotes />} />

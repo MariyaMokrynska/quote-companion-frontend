@@ -95,7 +95,8 @@ function Login() {
                     className="btn btn-outline-secondary"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? '👁️' : '🙈'}
+                    {/* {showPassword ? '👁️' : '🙈'} */}
+                    <i className={`bi ${showPassword ? 'bi-eye' : 'bi-eye-slash'}`}></i>
                   </button>
                 </div>
               </div>
