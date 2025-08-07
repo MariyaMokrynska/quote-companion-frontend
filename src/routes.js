@@ -10,7 +10,7 @@ const routes = [
     // icon: "nc-icon nc-layout-11",
   },
   {
-    path: "/moodmirror",
+    path: "/mood-mirror",
     name: "Mood Mirror",
     // icon: "nc-icon nc-key-25",
   },
