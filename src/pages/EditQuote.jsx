@@ -14,24 +14,41 @@ const EditQuote = ({
   const [quoteText, setQuoteText] = useState(initialQuoteText || "");
   const [author, setAuthor] = useState(initialAuthor || "");
   const [source, setSource] = useState(initialSource || "");
-  const [selectedCollectionId, setSelectedCollectionId] = useState(defaultCollectionId);
+  const [selectedCollectionId] = useState(defaultCollectionId);
   const [tags, setTags] = useState(initialTags || "");
   const [showToast, setShowToast] = useState(false);
+  const [modalInstance, setModalInstance] = useState(null);
 
   // Show modal on mount
   useEffect(() => {
-    console.log("EditQuote mounted, showing modal");
     const modalEl = document.getElementById("editQuoteModal");
     if (modalEl) {
-      const modal = new Modal(modalEl);
+      const modal = new Modal(modalEl, { backdrop: "static" });
       modal.show();
-      return () => modal.hide();
+      setModalInstance(modal);
     }
+
+    return () => {
+      cleanupModal();
+    };
   }, []);
+
+  const cleanupModal = () => {
+    document.body.classList.remove("modal-open");
+    const backdrops = document.querySelectorAll(".modal-backdrop");
+    backdrops.forEach((el) => el.remove());
+  };
+
+  const closeModal = () => {
+    if (modalInstance) {
+      modalInstance.hide();
+      cleanupModal();
+    }
+    if (onClose) onClose();
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submit clicked, updating quote:", quoteId);
 
     const {
       data: { user },
@@ -40,7 +57,6 @@ const EditQuote = ({
 
     if (authError || !user) {
       alert("Not authenticated");
-      console.error("Auth error:", authError);
       return;
     }
 
@@ -61,13 +77,10 @@ const EditQuote = ({
       return;
     }
 
-    console.log("Quote updated successfully");
     setShowToast(true);
+
     setTimeout(() => {
-      const modalEl = document.getElementById("editQuoteModal");
-      const modal = Modal.getInstance(modalEl);
-      if (modal) modal.hide();
-      if (onClose) onClose();
+      closeModal();
     }, 1000);
 
     setTimeout(() => setShowToast(false), 3000);
@@ -84,7 +97,6 @@ const EditQuote = ({
       >
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content p-3">
-           {/*  <h5 id="editQuoteModalLabel">Edit Quote (ID: {quoteId})</h5> */}
             <h5 id="editQuoteModalLabel">Edit Quote:</h5>
             <form onSubmit={handleSubmit}>
               <div className="mb-2">
@@ -134,7 +146,7 @@ const EditQuote = ({
               <button
                 type="button"
                 className="btn btn-secondary"
-                data-bs-dismiss="modal"
+                onClick={closeModal}
               >
                 Cancel
               </button>
@@ -162,4 +174,3 @@ const EditQuote = ({
 };
 
 export default EditQuote;
-

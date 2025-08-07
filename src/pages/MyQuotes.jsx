@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+/* import { createClient } from "@supabase/supabase-js"; */
+import { supabase } from "../services/supabaseClient";
 import { formatDistanceToNow } from "date-fns";
 import {
   FaEdit,
@@ -16,11 +17,11 @@ import routes from "../routes";
 import EditQuote from "./EditQuote"; 
 import "./MyQuotes.css";
 
-const supabase = createClient(
+/* const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_KEY
 );
-
+ */
 export default function MyQuotesPage() {
   const [quotes, setQuotes] = useState([]);
   const [editingQuote, setEditingQuote] = useState(null);
