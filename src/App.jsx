@@ -10,6 +10,7 @@ import MyCollections from './pages/MyCollections';
 import About from './pages/About';
 import SearchQuotes from './pages/SearchQuotes';
 import SearchResultsPage from './pages/SearchResults';
+import AddQuotePage from './pages/AddQuotePage';
 import './App.css';
 
 function App() {
@@ -21,11 +22,13 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/myquotes" element={<MyQuotes />} />
-        <Route path="/moodmirror" element={<MoodMirror />} />
+        <Route path="/mood-mirror" element={<MoodMirror />} />
         <Route path="/mycollections" element={<MyCollections />} />
         <Route path="/about" element={<About />} />
         <Route path="/search" element={<SearchQuotes />} />
         <Route path="/search-results" element={<SearchResultsPage />} />
+        <Route path="/addquote" element={<AddQuotePage />} />
+
       </Routes>
     </Router>
   );
