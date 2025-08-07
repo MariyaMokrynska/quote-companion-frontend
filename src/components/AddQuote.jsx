@@ -291,7 +291,6 @@
 // }
 
 // export default AddQuote;
-
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
@@ -305,7 +304,6 @@ const AddQuote = ({
   defaultCollectionId = "",
   onClose,
 }) => {
-
   const [quoteText, setQuoteText] = useState(initialQuoteText);
   const [author, setAuthor] = useState(initialAuthor);
   const [source, setSource] = useState("");
@@ -342,12 +340,12 @@ const AddQuote = ({
   }, [initialQuoteText, initialAuthor, initialTags, defaultCollectionId]);
 
   useEffect(() => {
-  const modalElement = document.getElementById("addQuoteModal");
-  if (modalElement) {
-    const modalInstance = new Modal(modalElement);
-    modalInstance.show();
-  }
-}, []);
+    const modalElement = document.getElementById("addQuoteModal");
+    if (modalElement) {
+      const modalInstance = new Modal(modalElement);
+      modalInstance.show();
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -364,12 +362,15 @@ const AddQuote = ({
       return;
     }
 
+    const userId = user.id;
+    console.log("Authenticated user ID:", userId);
+
     let collectionId = selectedCollectionId;
 
     if (!selectedCollectionId && newCollectionName.trim()) {
       const { data: newCollection, error: collError } = await supabase
         .from("collection")
-        .insert([{ title: newCollectionName.trim(), user_id: user.id }])
+        .insert([{ title: newCollectionName.trim(), user_id: userId }])
         .select()
         .single();
 
@@ -388,8 +389,9 @@ const AddQuote = ({
           text: quoteText,
           author: author || null,
           source: source || null,
-          user_id: user.id,
+          user_id: userId,
           collection_id: collectionId || null,
+          tags: tags || null,
         },
       ])
       .select()
@@ -401,10 +403,12 @@ const AddQuote = ({
       return;
     }
 
+    console.log("Inserted quote:", quote);
+
     if (isFavorite && quote?.id) {
       const { error: favError } = await supabase
         .from("favorite")
-        .insert([{ user_id: user.id, quote_id: quote.id }]);
+        .insert([{ user_id: userId, quote_id: quote.id }]);
 
       if (favError) {
         console.error("Failed to add to favorites:", favError.message);
@@ -414,18 +418,13 @@ const AddQuote = ({
 
     setShowToast(true);
     setTimeout(() => {
-      // Close modal
       const modalElement = document.getElementById("addQuoteModal");
       let modalInstance = Modal.getInstance(modalElement);
-      if (!modalInstance) {
-        modalInstance = new Modal(modalElement);
-      }
+      if (!modalInstance) modalInstance = new Modal(modalElement);
       modalInstance.hide();
 
-      // Call onClose to unmount modal
       onClose();
 
-      // Then reset form after closing
       setQuoteText("");
       setAuthor("");
       setSource("");
@@ -434,25 +433,18 @@ const AddQuote = ({
       setIsFavorite(false);
     }, 800);
 
-    // Hide toast after 3 seconds
     setTimeout(() => setShowToast(false), 3000);
   };
 
   return (
     <>
+      {/* Modal */}
       <div className="modal fade" id="addQuoteModal" tabIndex="-1" aria-labelledby="addQuoteModalLabel" aria-hidden="true">
         <div className="modal-dialog modal-xl modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header justify-content-center position-relative">
-              <h5 className="modal-title text-center w-100 fw-bold" id="addQuoteModalLabel">
-                Add a New Quote
-              </h5>
-              <button
-                type="button"
-                className="btn-close position-absolute top-0 end-0 m-3"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
+              <h5 className="modal-title text-center w-100 fw-bold" id="addQuoteModalLabel">Add a New Quote</h5>
+              <button type="button" className="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div className="modal-body px-5">
               <form onSubmit={handleSubmit}>
@@ -471,7 +463,7 @@ const AddQuote = ({
                   ></textarea>
                 </div>
 
-                {/* Author and Source */}
+                {/* Author & Source */}
                 <div className="row mb-3">
                   <div className="col-md-6">
                     <label htmlFor="quoteAuthor" className="form-label text-start w-100">Author <em>(optional)</em></label>
@@ -525,7 +517,7 @@ const AddQuote = ({
                   </div>
                 </div>
 
-                {/* Tags and Favorites */}
+                {/* Tags & Favorite */}
                 <div className="row mb-4">
                   <div className="col-md-8">
                     <label htmlFor="tags" className="form-label text-start w-100">Tags <em>(comma-separated)</em></label>
@@ -553,7 +545,7 @@ const AddQuote = ({
                   </div>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Buttons */}
                 <div className="text-center">
                   <button type="submit" className="btn btn-primary me-2">Save Quote</button>
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -568,14 +560,14 @@ const AddQuote = ({
       {showToast && (
         <div
           className="toast-container position-absolute top-50 start-50 translate-middle"
-          style={{ zIndex: 2000 }} // ✅ Correct placement of inline style
+          style={{ zIndex: 2000 }}
         >
           <div
             className="toast align-items-center text-white bg-success border-0 show"
             role="alert"
             aria-live="assertive"
             aria-atomic="true"
-            style={{ minWidth: "250px" }} // ✅ Matches style from MoodMirror
+            style={{ minWidth: "250px" }}
           >
             <div className="d-flex">
               <div className="toast-body text-center w-100">
