@@ -315,6 +315,7 @@ const EditQuote = ({
   const [quoteText, setQuoteText] = useState(initialQuoteText || "");
   const [author, setAuthor] = useState(initialAuthor || "");
   const [source, setSource] = useState(initialSource || "");
+  const [selectedCollectionId, setSelectedCollectionId] = useState(defaultCollectionId);
   const [tags, setTags] = useState(initialTags || "");
   const [showToast, setShowToast] = useState(false);
 
@@ -344,7 +345,7 @@ const EditQuote = ({
       return;
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("quote")
       .update({
         text: quoteText,
@@ -353,8 +354,7 @@ const EditQuote = ({
         tags: tags || null,
         updated_at: new Date(),
       })
-      .eq("id", quoteId)
-      .select(); // <--- select updated rows to verify
+      .eq("id", quoteId);
 
     if (error) {
       alert("Update failed");
@@ -362,15 +362,7 @@ const EditQuote = ({
       return;
     }
 
-    console.log("Updated rows:", data);
-
-    if (!data || data.length === 0) {
-      alert(
-        "No rows updated — please check quote ID and your permissions (RLS policies)"
-      );
-      return;
-    }
-
+    console.log("Quote updated successfully");
     setShowToast(true);
     setTimeout(() => {
       const modalEl = document.getElementById("editQuoteModal");
@@ -393,7 +385,8 @@ const EditQuote = ({
       >
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content p-3">
-            <h5 id="editQuoteModalLabel">Edit Quote (ID: {quoteId})</h5>
+           {/*  <h5 id="editQuoteModalLabel">Edit Quote (ID: {quoteId})</h5> */}
+            <h5 id="editQuoteModalLabel">Edit Quote:</h5>
             <form onSubmit={handleSubmit}>
               <div className="mb-2">
                 <label>Quote Text*</label>
@@ -470,4 +463,3 @@ const EditQuote = ({
 };
 
 export default EditQuote;
-
