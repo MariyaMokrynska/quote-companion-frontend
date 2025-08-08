@@ -18,53 +18,95 @@ import EditQuote from "./EditQuote";
 import "./MyQuotes.css";
 
 export default function MyQuotesPage() {
-  const location = useLocation(); 
+  const location = useLocation();
   const navigate = useNavigate();
-  const params = new URLSearchParams(location.search); 
-  const collectionId = params.get("collectionId"); 
-  const collectionTitle = params.get("title"); 
+  const params = new URLSearchParams(location.search);
+  const collectionId = params.get("collectionId");
+  const collectionTitle = params.get("title");
+
   const [quotes, setQuotes] = useState([]);
   const [editingQuote, setEditingQuote] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [favorites, setFavorites] = useState([]);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    fetchQuotes(collectionId); // pass optional collectionId
-    // re-run whenever the query string changes
-  }, [collectionId, location.search]); 
+    // Load user and fetch quotes and favorites
+    async function loadUserAndData() {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-  async function fetchQuotes(filterCollectionId) { 
+      if (userError) {
+        console.error("Error fetching user:", userError);
+        return;
+      }
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+      if (!user) {
+        console.warn("No authenticated user found.");
+        setQuotes([]);
+        setFavorites([]);
+        setUserId(null);
+        return;
+      }
 
-    if (userError) {
-      console.error("Error fetching user:", userError);
-      return;
+      setUserId(user.id);
+
+      await fetchQuotes(collectionId, user.id);
+      await fetchFavorites(user.id);
     }
+    loadUserAndData();
+  }, [collectionId, location.search]);
 
-    if (!user) {
-      console.warn("No authenticated user found.");
+  async function fetchQuotes(filterCollectionId, uid) {
+    if (!uid) {
       setQuotes([]);
       return;
     }
+    try {
+      let query = supabase
+        .from("quote")
+        .select("*")
+        .eq("user_id", uid);
 
-    let query = supabase
-      .from("quote")
-      .select("*")
-      .eq("user_id", user.id); 
+      if (filterCollectionId) {
+        query = query.eq("collection_id", filterCollectionId);
+      }
 
-    if (filterCollectionId) {
-      query = query.eq("collection_id", filterCollectionId); 
+      const { data, error } = await query.order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching quotes:", error);
+      } else {
+        setQuotes(data || []);
+      }
+    } catch (err) {
+      console.error("fetchQuotes exception:", err);
     }
+  }
 
-    const { data, error } = await query.order("created_at", { ascending: false });
+  async function fetchFavorites(uid) {
+    if (!uid) {
+      setFavorites([]);
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from("favorite")
+        .select("quote_id")
+        .eq("user_id", uid);
 
-    if (error) {
-      console.error("Error fetching quotes:", error);
-    } else {
-      setQuotes(data);
+      if (error) {
+        console.error("Error fetching favorites:", error);
+        setFavorites([]);
+      } else {
+        const favoriteIds = data.map((f) => f.quote_id);
+        setFavorites(favoriteIds);
+      }
+    } catch (err) {
+      console.error("fetchFavorites exception:", err);
+      setFavorites([]);
     }
   }
 
@@ -74,47 +116,68 @@ export default function MyQuotesPage() {
   };
 
   const handleDelete = async (id) => {
-    console.log("Attempting to delete quote with id:", id);
     try {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        console.error("User fetch error:", userError);
-        return;
-      }
-
-      if (!user) {
-        console.warn("No authenticated user found.");
-        return;
-      }
-
+      if (!userId) return;
       const { data, error } = await supabase
         .from("quote")
         .delete()
         .eq("id", id)
-        .eq("user_id", user.id)
-        .select(); // return deleted rows info
+        .eq("user_id", userId)
+        .select();
 
       if (error) {
         console.error("Delete failed:", error);
         return;
       }
-
-      console.log("Deleted quote:", data);
-
-      // Refresh quotes list after delete
-      await fetchQuotes();
+      await fetchQuotes(collectionId, userId);
     } catch (err) {
       console.error("Delete exception:", err);
     }
   };
 
+  // Toggle favorite/unfavorite the quote
   const handleFavorite = async (quote) => {
-    console.log("Favorite:", quote);
-    // TODO: Insert into "favorite" table
+    if (!userId) {
+      alert("You need to be logged in to favorite quotes.");
+      return;
+    }
+
+    try {
+      const isFavorited = favorites.includes(quote.id);
+
+      if (isFavorited) {
+        // Remove favorite
+        const { error } = await supabase
+          .from("favorite")
+          .delete()
+          .eq("user_id", userId)
+          .eq("quote_id", quote.id);
+
+        if (error) {
+          console.error("Error removing favorite:", error);
+          return;
+        }
+
+        setFavorites((prev) => prev.filter((id) => id !== quote.id));
+      } else {
+        // Add favorite
+        const { error } = await supabase.from("favorite").insert([
+          {
+            user_id: userId,
+            quote_id: quote.id,
+          },
+        ]);
+
+        if (error) {
+          console.error("Error adding favorite:", error);
+          return;
+        }
+
+        setFavorites((prev) => [...prev, quote.id]);
+      }
+    } catch (err) {
+      console.error("handleFavorite exception:", err);
+    }
   };
 
   const handleAddToCollection = (quote) => {
@@ -135,7 +198,7 @@ export default function MyQuotesPage() {
   const handleCloseEditModal = () => {
     setShowEditModal(false);
     setEditingQuote(null);
-    fetchQuotes();
+    fetchQuotes(collectionId, userId);
   };
 
   return (
@@ -160,7 +223,7 @@ export default function MyQuotesPage() {
               <button
                 type="button"
                 className="btn btn-sm btn-outline-secondary"
-                onClick={() => navigate("/myquotes", { replace: true })} // [ADD] Clear filter
+                onClick={() => navigate("/myquotes", { replace: true })} // Clear filter
               >
                 Clear filter
               </button>
@@ -168,43 +231,47 @@ export default function MyQuotesPage() {
           )}
 
           <section className="quotes-grid mt-4">
-            {quotes.map((quote) => (
-              <div key={quote.id} className="quote-card">
-                <p className="quote-text">“{quote.text}”</p>
-                <p className="quote-author">
-                  <em>{quote.author || "Unknown"}</em>
-                </p>
-                <span className="quote-timestamp">
-                  {formatDistanceToNow(new Date(quote.created_at), {
-                    addSuffix: true,
-                  })}
-                </span>
+            {quotes.map((quote) => {
+              const isFavorited = favorites.includes(quote.id);
+              return (
+                <div key={quote.id} className="quote-card">
+                  <p className="quote-text">“{quote.text}”</p>
+                  <p className="quote-author">
+                    <em>{quote.author || "Unknown"}</em>
+                  </p>
+                  <span className="quote-timestamp">
+                    {formatDistanceToNow(new Date(quote.created_at), {
+                      addSuffix: true,
+                    })}
+                  </span>
 
-                <div className="quote-actions">
-                  <FaEdit title="Edit" onClick={() => handleEdit(quote)} />
-                  <FaTrash
-                    title="Delete"
-                    onClick={() => handleDelete(quote.id)}
-                  />
-                  <FaHeart
-                    title="Favorite"
-                    onClick={() => handleFavorite(quote)}
-                  />
-                  <FaPlusSquare
-                    title="Add to Collection"
-                    onClick={() => handleAddToCollection(quote)}
-                  />
-                  <FaThLarge
-                    title="View Collection"
-                    onClick={() => handleViewCollection(quote)}
-                  />
-                  <FaShareAlt
-                    title="Share"
-                    onClick={() => handleShare(quote)}
-                  />
+                  <div className="quote-actions">
+                    <FaEdit title="Edit" onClick={() => handleEdit(quote)} />
+                    <FaTrash
+                      title="Delete"
+                      onClick={() => handleDelete(quote.id)}
+                    />
+                    <FaHeart
+                      title="Favorite"
+                      onClick={() => handleFavorite(quote)}
+                      style={{ color: isFavorited ? "red" : "inherit", cursor: "pointer" }}
+                    />
+                    <FaPlusSquare
+                      title="Add to Collection"
+                      onClick={() => handleAddToCollection(quote)}
+                    />
+                    <FaThLarge
+                      title="View Collection"
+                      onClick={() => handleViewCollection(quote)}
+                    />
+                    <FaShareAlt
+                      title="Share"
+                      onClick={() => handleShare(quote)}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </section>
         </div>
 
