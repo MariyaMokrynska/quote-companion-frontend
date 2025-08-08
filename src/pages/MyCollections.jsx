@@ -5,6 +5,7 @@ import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import routes from "../routes";
+import { Link } from "react-router-dom"; 
 
 function MyCollections() {
   const [collections, setCollections] = useState([]);        // [{id,title}]
@@ -147,7 +148,13 @@ function MyCollections() {
             <ul className="list-group mb-4">
               {collections.map((c) => (
                 <li key={c.id} className="list-group-item d-flex justify-content-between align-items-center">
-                  <span className="fw-semibold">{c.title}</span>
+                  {/* <span className="fw-semibold">{c.title}</span> */}
+                  <Link
+                    to={`/myquotes?collectionId=${c.id}&title=${encodeURIComponent(c.title)}`} // ✅ NEW
+                    className="fw-semibold text-decoration-none"
+                  >
+                    {c.title}
+                  </Link>
                   <span className="badge bg-primary rounded-pill">
                     {quoteCounts[c.id] || 0}
                   </span>
