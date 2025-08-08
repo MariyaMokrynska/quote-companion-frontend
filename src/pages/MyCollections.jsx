@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { supabase } from "../services/supabaseClient";
 import Sidebar from "../components/Sidebar";
@@ -147,7 +148,14 @@ function MyCollections() {
             <ul className="list-group mb-4">
               {collections.map((c) => (
                 <li key={c.id} className="list-group-item d-flex justify-content-between align-items-center">
-                  <span className="fw-semibold">{c.title}</span>
+                  {/* <span className="fw-semibold">{c.title}</span> */}
+
+                  <Link
+                    to={`/myquotes?collectionId=${c.id}&title=${encodeURIComponent(c.title)}`} // ✅ NEW
+                    className="fw-semibold text-decoration-none"
+                  >
+                    {c.title}
+                  </Link>
                   <span className="badge bg-primary rounded-pill">
                     {quoteCounts[c.id] || 0}
                   </span>

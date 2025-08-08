@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-/* import { createClient } from "@supabase/supabase-js"; */
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -14,49 +14,101 @@ import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import routes from "../routes";
-import EditQuote from "./EditQuote"; 
+import EditQuote from "./EditQuote";
 import "./MyQuotes.css";
 
-/* const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-);
- */
 export default function MyQuotesPage() {
+  const location = useLocation(); 
+  const navigate = useNavigate();
+  const params = new URLSearchParams(location.search); 
+  const collectionId = params.get("collectionId"); 
+  const collectionTitle = params.get("title"); 
   const [quotes, setQuotes] = useState([]);
   const [editingQuote, setEditingQuote] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
-    fetchQuotes();
-  }, []);
+    fetchQuotes(collectionId); // pass optional collectionId
+    // re-run whenever the query string changes
+  }, [collectionId, location.search]); 
 
-  async function fetchQuotes() {
+  async function fetchQuotes(filterCollectionId) { 
+
     const {
-      data,
-      error,
-    } = await supabase.from("quote").select("*").order("created_at", {
-      ascending: false,
-    });
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-    if (error) console.error(error);
-    else setQuotes(data);
+    if (userError) {
+      console.error("Error fetching user:", userError);
+      return;
+    }
+
+    if (!user) {
+      console.warn("No authenticated user found.");
+      setQuotes([]);
+      return;
+    }
+
+    let query = supabase
+      .from("quote")
+      .select("*")
+      .eq("user_id", user.id); 
+
+    if (filterCollectionId) {
+      query = query.eq("collection_id", filterCollectionId); 
+    }
+
+    const { data, error } = await query.order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching quotes:", error);
+    } else {
+      setQuotes(data);
+    }
   }
 
-
-
-  // Icon Handlers
   const handleEdit = (quote) => {
     setEditingQuote(quote);
     setShowEditModal(true);
   };
 
   const handleDelete = async (id) => {
-    const { error } = await supabase.from("quote").delete().eq("id", id);
-    if (error) {
-      console.error("Delete failed:", error);
-    } else {
-      setQuotes((prev) => prev.filter((q) => q.id !== id));
+    console.log("Attempting to delete quote with id:", id);
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        console.error("User fetch error:", userError);
+        return;
+      }
+
+      if (!user) {
+        console.warn("No authenticated user found.");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("quote")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select(); // return deleted rows info
+
+      if (error) {
+        console.error("Delete failed:", error);
+        return;
+      }
+
+      console.log("Deleted quote:", data);
+
+      // Refresh quotes list after delete
+      await fetchQuotes();
+    } catch (err) {
+      console.error("Delete exception:", err);
     }
   };
 
@@ -80,7 +132,6 @@ export default function MyQuotesPage() {
     // TODO: Copy to clipboard or open share modal
   };
 
-  // Close Edit modal handler: refresh quotes after edit
   const handleCloseEditModal = () => {
     setShowEditModal(false);
     setEditingQuote(null);
@@ -98,10 +149,25 @@ export default function MyQuotesPage() {
         <Navbar />
 
         <div className="flex-grow-1 p-4">
-          <h2 className="text-center fw-bold">My Quotes</h2>
-          <p className="text-center">Your personal collection of inspiration</p>
+          <h2 className="text-center fw-bold">
+            {collectionId ? `Quotes in “${collectionTitle || "Collection"}”` : "My Quotes"}
+          </h2>
+          <p className="text-center">
+            {collectionId ? "Filtered by collection" : "Your personal collection of inspiration"}
+          </p>
+          {collectionId && (
+            <div className="text-center mt-2">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => navigate("/myquotes", { replace: true })} // [ADD] Clear filter
+              >
+                Clear filter
+              </button>
+            </div>
+          )}
 
-          <section className="quotes-grid">
+          <section className="quotes-grid mt-4">
             {quotes.map((quote) => (
               <div key={quote.id} className="quote-card">
                 <p className="quote-text">“{quote.text}”</p>
@@ -116,8 +182,14 @@ export default function MyQuotesPage() {
 
                 <div className="quote-actions">
                   <FaEdit title="Edit" onClick={() => handleEdit(quote)} />
-                  <FaTrash title="Delete" onClick={() => handleDelete(quote.id)} />
-                  <FaHeart title="Favorite" onClick={() => handleFavorite(quote)} />
+                  <FaTrash
+                    title="Delete"
+                    onClick={() => handleDelete(quote.id)}
+                  />
+                  <FaHeart
+                    title="Favorite"
+                    onClick={() => handleFavorite(quote)}
+                  />
                   <FaPlusSquare
                     title="Add to Collection"
                     onClick={() => handleAddToCollection(quote)}
@@ -126,7 +198,10 @@ export default function MyQuotesPage() {
                     title="View Collection"
                     onClick={() => handleViewCollection(quote)}
                   />
-                  <FaShareAlt title="Share" onClick={() => handleShare(quote)} />
+                  <FaShareAlt
+                    title="Share"
+                    onClick={() => handleShare(quote)}
+                  />
                 </div>
               </div>
             ))}
@@ -136,7 +211,6 @@ export default function MyQuotesPage() {
         <Footer />
       </div>
 
-      {/* Render EditQuote modal only when editing */}
       {showEditModal && editingQuote && (
         <EditQuote
           quoteId={editingQuote.id}
