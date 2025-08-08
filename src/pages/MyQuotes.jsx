@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 import { formatDistanceToNow } from "date-fns";
+import { Modal } from "bootstrap";
 import {
   FaEdit,
   FaTrash,
@@ -34,8 +35,11 @@ export default function MyQuotesPage() {
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
   const [newCollectionName, setNewCollectionName] = useState("");
   const [quoteToAdd, setQuoteToAdd] = useState(null);
-  const [showCollectionPicker, setShowCollectionPicker] = useState(false);
 
+  const collectionModalRef = useRef(null);
+  const collectionModalInstance = useRef(null);
+
+  // Load user and data on mount & when collectionId changes
   useEffect(() => {
     async function loadUserAndData() {
       const {
@@ -64,6 +68,25 @@ export default function MyQuotesPage() {
     loadUserAndData();
   }, [collectionId, location.search]);
 
+  // Show/hide bootstrap modal for collection picker
+  useEffect(() => {
+    if (quoteToAdd) {
+      if (collectionModalRef.current) {
+        collectionModalInstance.current = new Modal(collectionModalRef.current, {
+          backdrop: "static",
+        });
+        collectionModalInstance.current.show();
+      }
+    } else {
+      if (collectionModalInstance.current) {
+        collectionModalInstance.current.hide();
+        collectionModalInstance.current = null;
+      }
+      setSelectedCollectionId("");
+      setNewCollectionName("");
+    }
+  }, [quoteToAdd]);
+
   async function fetchQuotes(filterCollectionId, uid) {
     if (!uid) {
       setQuotes([]);
@@ -71,15 +94,12 @@ export default function MyQuotesPage() {
     }
     try {
       let query = supabase.from("quote").select("*").eq("user_id", uid);
-
       if (filterCollectionId) {
         query = query.eq("collection_id", filterCollectionId);
       }
-
       const { data, error } = await query.order("created_at", {
         ascending: false,
       });
-
       if (error) {
         console.error("Error fetching quotes:", error);
       } else {
@@ -100,7 +120,6 @@ export default function MyQuotesPage() {
         .from("favorite")
         .select("quote_id")
         .eq("user_id", uid);
-
       if (error) {
         console.error("Error fetching favorites:", error);
         setFavorites([]);
@@ -124,7 +143,6 @@ export default function MyQuotesPage() {
         .select("id, title")
         .eq("user_id", uid)
         .order("title", { ascending: true });
-
       if (error) {
         console.error("Error fetching collections:", error);
         setCollections([]);
@@ -150,7 +168,6 @@ export default function MyQuotesPage() {
         .delete()
         .eq("id", id)
         .eq("user_id", userId);
-
       if (error) {
         console.error("Delete failed:", error);
         return;
@@ -166,22 +183,18 @@ export default function MyQuotesPage() {
       alert("You need to be logged in to favorite quotes.");
       return;
     }
-
     try {
       const isFavorited = favorites.includes(quote.id);
-
       if (isFavorited) {
         const { error } = await supabase
           .from("favorite")
           .delete()
           .eq("user_id", userId)
           .eq("quote_id", quote.id);
-
         if (error) {
           console.error("Error removing favorite:", error);
           return;
         }
-
         setFavorites((prev) => prev.filter((id) => id !== quote.id));
       } else {
         const { error } = await supabase.from("favorite").insert([
@@ -190,12 +203,10 @@ export default function MyQuotesPage() {
             quote_id: quote.id,
           },
         ]);
-
         if (error) {
           console.error("Error adding favorite:", error);
           return;
         }
-
         setFavorites((prev) => [...prev, quote.id]);
       }
     } catch (err) {
@@ -205,7 +216,6 @@ export default function MyQuotesPage() {
 
   const handleAddToCollectionClick = (quote) => {
     setQuoteToAdd(quote);
-    setShowCollectionPicker(true);
   };
 
   const handleAddToCollectionConfirm = async () => {
@@ -220,7 +230,6 @@ export default function MyQuotesPage() {
           .insert([{ title: newCollectionName.trim(), user_id: userId }])
           .select()
           .single();
-
         if (collErr) throw collErr;
         collectionIdToUse = newColl.id;
         await fetchCollections(userId);
@@ -236,14 +245,10 @@ export default function MyQuotesPage() {
         .update({ collection_id: collectionIdToUse })
         .eq("id", quoteToAdd.id)
         .eq("user_id", userId);
-
       if (updateErr) throw updateErr;
 
       alert("Quote added to collection!");
-      setShowCollectionPicker(false);
-      setQuoteToAdd(null);
-      setSelectedCollectionId("");
-      setNewCollectionName("");
+      setQuoteToAdd(null); // This will hide the modal & reset selections
       await fetchQuotes(collectionId, userId);
     } catch (err) {
       console.error("handleAddToCollectionConfirm error:", err);
@@ -290,6 +295,7 @@ export default function MyQuotesPage() {
             </div>
           )}
 
+          {/* Quotes Grid - KEEP your existing CSS */}
           <section className="quotes-grid mt-4">
             {quotes.map((quote) => {
               const isFavorited = favorites.includes(quote.id);
@@ -325,7 +331,13 @@ export default function MyQuotesPage() {
                     />
                     <FaThLarge
                       title="View Collection"
-                      onClick={() => navigate(`/myquotes?collectionId=${quote.collection_id}&title=${encodeURIComponent(collectionTitle || "")}`)}
+                      onClick={() =>
+                        navigate(
+                          `/myquotes?collectionId=${quote.collection_id}&title=${encodeURIComponent(
+                            collectionTitle || ""
+                          )}`
+                        )
+                      }
                     />
                     <FaShareAlt
                       title="Share"
@@ -337,63 +349,77 @@ export default function MyQuotesPage() {
             })}
           </section>
 
-          {showCollectionPicker && (
-            <div className="mt-4 p-3 border rounded bg-light">
-              <h5>Select or Create Collection</h5>
-              <div className="row mb-3">
-                <div className="col-md-6">
-                  <label
-                    htmlFor="quoteCollection"
-                    className="form-label text-start w-100"
-                  >
-                    Collection
-                  </label>
-                  <select
-                    className="form-select"
-                    id="quoteCollection"
-                    value={selectedCollectionId}
-                    onChange={(e) => setSelectedCollectionId(e.target.value)}
-                  >
-                    <option value="">Select existing collection...</option>
-                    {collections.map((coll) => (
-                      <option key={coll.id} value={coll.id}>
-                        {coll.title}
-                      </option>
-                    ))}
-                  </select>
+          {/* Collection Picker Modal */}
+          <div
+            className="modal fade"
+            tabIndex="-1"
+            ref={collectionModalRef}
+            aria-labelledby="collectionPickerLabel"
+            aria-hidden="true"
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content p-3">
+                <h5 id="collectionPickerLabel" className="mb-3">
+                  Select or Create Collection
+                </h5>
+
+                <div className="row mb-3">
+                  <div className="col-md-6">
+                    <label
+                      htmlFor="quoteCollection"
+                      className="form-label text-start w-100"
+                    >
+                      Existing Collections
+                    </label>
+                    <select
+                      className="form-select"
+                      id="quoteCollection"
+                      value={selectedCollectionId}
+                      onChange={(e) => setSelectedCollectionId(e.target.value)}
+                    >
+                      <option value="">Select existing collection...</option>
+                      {collections.map((coll) => (
+                        <option key={coll.id} value={coll.id}>
+                          {coll.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-md-6">
+                    <label
+                      htmlFor="newCollection"
+                      className="form-label text-start w-100"
+                    >
+                      Add New Collection
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="newCollection"
+                      placeholder="Enter new collection title"
+                      value={newCollectionName}
+                      onChange={(e) => setNewCollectionName(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div className="col-md-6">
-                  <label
-                    htmlFor="newCollection"
-                    className="form-label text-start w-100"
+
+                <div>
+                  <button
+                    className="btn btn-primary me-2"
+                    onClick={handleAddToCollectionConfirm}
                   >
-                    Add to New Collection
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="newCollection"
-                    value={newCollectionName}
-                    onChange={(e) => setNewCollectionName(e.target.value)}
-                  />
+                    Save
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setQuoteToAdd(null)}
+                  >
+                    Cancel
+                  </button>
                 </div>
-              </div>
-              <div>
-                <button
-                  className="btn btn-primary me-2"
-                  onClick={handleAddToCollectionConfirm}
-                >
-                  Save
-                </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setShowCollectionPicker(false)}
-                >
-                  Cancel
-                </button>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         <Footer />
