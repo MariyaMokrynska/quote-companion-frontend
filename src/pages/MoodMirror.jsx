@@ -40,10 +40,7 @@ const MoodMirror = () => {
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [showReflectionToast, setShowReflectionToast] = useState(false);
 
-  // const navigate = useNavigate();
-
   const handleReflect = async () => {
-    // console.log("Anon Key from Vite:", import.meta.env.VITE_SUPABASE_KEY); // Debug line
 
     setError("");
     setLoading(true);
@@ -216,9 +213,12 @@ const MoodMirror = () => {
                   Save Reflection
                 </button>
                 <button
+                  type="button"
                   className="btn btn-outline-success"
                   onClick={() => {
-                    setSelectedQuote(quoteOptions[0]);  // or any quote from quoteOptions
+                    console.log("Add clicked", quoteOptions?.[0]); // temp debug
+                    if (!quoteOptions || !quoteOptions.length) return; // prevent no-op
+                    setSelectedQuote(quoteOptions[0]);
                     setShowAddQuoteModal(true);
                   }}
                 >
@@ -245,18 +245,17 @@ const MoodMirror = () => {
             </a>
           </div>
 
-          {showAddQuoteModal && selectedQuote && (
+          {showAddQuoteModal && (
             <AddQuote
-              initialQuoteText={selectedQuote.q}
-              initialAuthor={selectedQuote.a}
-              initialTags={labels.join(", ")} // comma-separated labels
-              defaultCollectionId={""} // or pass "Mood Mirror Picks" collection ID here
+              show={showAddQuoteModal}
               onClose={() => setShowAddQuoteModal(false)}
+              initialQuoteText={selectedQuote?.q || selectedQuote?.text || ""}
+              initialAuthor={selectedQuote?.a || selectedQuote?.author || "Unknown"}
+              initialTags={Array.isArray(labels) ? labels.join(", ") : ""} // if you have mood labels
             />
           )}
 
           {showReflectionToast && (
-            // <div className="toast-container position-fixed top-50 start-50 translate-middle" style={{ zIndex: 2000 }}>
             <div className="toast-container position-absolute top-50 start-50 translate-middle" style={{ zIndex: 2000 }}>
               <div className="toast align-items-center text-white bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" style={{ minWidth: "250px" }}>
                 <div className="d-flex">

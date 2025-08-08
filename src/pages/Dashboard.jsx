@@ -172,7 +172,7 @@ function Dashboard() {
               </button>
               <button
                 className="btn btn-primary fs-5 px-4 py-3"
-                onClick={() => navigate("/myquotes")}
+                onClick={() => navigate("/mycollections")}
               >
                 View Collections
               </button>
@@ -184,7 +184,7 @@ function Dashboard() {
               </button>
               <button
                 className="btn btn-primary fs-5 px-4 py-3"
-                onClick={() => navigate("/moodmirror")}
+                onClick={() => navigate("/mood-mirror")}
               >
                 Reflect Mood
               </button>
