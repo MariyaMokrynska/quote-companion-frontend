@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -17,15 +18,22 @@ import EditQuote from "./EditQuote";
 import "./MyQuotes.css";
 
 export default function MyQuotesPage() {
+  const location = useLocation(); 
+  const navigate = useNavigate();
+  const params = new URLSearchParams(location.search); 
+  const collectionId = params.get("collectionId"); 
+  const collectionTitle = params.get("title"); 
   const [quotes, setQuotes] = useState([]);
   const [editingQuote, setEditingQuote] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
-    fetchQuotes();
-  }, []);
+    fetchQuotes(collectionId); // pass optional collectionId
+    // re-run whenever the query string changes
+  }, [collectionId, location.search]); 
 
-  async function fetchQuotes() {
+  async function fetchQuotes(filterCollectionId) { 
+
     const {
       data: { user },
       error: userError,
@@ -42,11 +50,16 @@ export default function MyQuotesPage() {
       return;
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("quote")
       .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .eq("user_id", user.id); 
+
+    if (filterCollectionId) {
+      query = query.eq("collection_id", filterCollectionId); 
+    }
+
+    const { data, error } = await query.order("created_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching quotes:", error);
@@ -136,10 +149,25 @@ export default function MyQuotesPage() {
         <Navbar />
 
         <div className="flex-grow-1 p-4">
-          <h2 className="text-center fw-bold">My Quotes</h2>
-          <p className="text-center">Your personal collection of inspiration</p>
+          <h2 className="text-center fw-bold">
+            {collectionId ? `Quotes in “${collectionTitle || "Collection"}”` : "My Quotes"}
+          </h2>
+          <p className="text-center">
+            {collectionId ? "Filtered by collection" : "Your personal collection of inspiration"}
+          </p>
+          {collectionId && (
+            <div className="text-center mt-2">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => navigate("/myquotes", { replace: true })} // [ADD] Clear filter
+              >
+                Clear filter
+              </button>
+            </div>
+          )}
 
-          <section className="quotes-grid">
+          <section className="quotes-grid mt-4">
             {quotes.map((quote) => (
               <div key={quote.id} className="quote-card">
                 <p className="quote-text">“{quote.text}”</p>

@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { supabase } from "../services/supabaseClient";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import routes from "../routes";
-import { Link } from "react-router-dom"; 
 
 function MyCollections() {
-  const [collections, setCollections] = useState([]);        // [{id,title}]
-  const [quoteCounts, setQuoteCounts] = useState({});        // { [collection_id]: number }
+  const [collections, setCollections] = useState([]);        
+  const [quoteCounts, setQuoteCounts] = useState({});        
   const [loading, setLoading] = useState(true);
   const [addLoading, setAddLoading] = useState(false);
   const [error, setError] = useState("");
