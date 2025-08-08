@@ -8,8 +8,8 @@ import {
   FaTrash,
   FaHeart,
   FaPlusSquare,
-  FaThLarge,
-  FaShareAlt,
+  // FaThLarge,  // Removed view collection icon
+  // FaShareAlt, // Share icon will be commented in JSX
 } from "react-icons/fa";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -39,7 +39,6 @@ export default function MyQuotesPage() {
   const collectionModalRef = useRef(null);
   const collectionModalInstance = useRef(null);
 
-  // Load user and data on mount & when collectionId changes
   useEffect(() => {
     async function loadUserAndData() {
       const {
@@ -68,7 +67,6 @@ export default function MyQuotesPage() {
     loadUserAndData();
   }, [collectionId, location.search]);
 
-  // Show/hide bootstrap modal for collection picker
   useEffect(() => {
     if (quoteToAdd) {
       if (collectionModalRef.current) {
@@ -262,6 +260,13 @@ export default function MyQuotesPage() {
     fetchQuotes(collectionId, userId);
   };
 
+  /*
+  // Commented out handleShare handler
+  const handleShare = (quote) => {
+    console.log("Share:", quote);
+  };
+  */
+
   return (
     <div className="d-flex">
       <Sidebar color="dark" routes={routes} />
@@ -295,7 +300,6 @@ export default function MyQuotesPage() {
             </div>
           )}
 
-          {/* Quotes Grid - KEEP your existing CSS */}
           <section className="quotes-grid mt-4">
             {quotes.map((quote) => {
               const isFavorited = favorites.includes(quote.id);
@@ -329,20 +333,12 @@ export default function MyQuotesPage() {
                       title="Add to Collection"
                       onClick={() => handleAddToCollectionClick(quote)}
                     />
-                    <FaThLarge
-                      title="View Collection"
-                      onClick={() =>
-                        navigate(
-                          `/myquotes?collectionId=${quote.collection_id}&title=${encodeURIComponent(
-                            collectionTitle || ""
-                          )}`
-                        )
-                      }
-                    />
+                    {/* 
                     <FaShareAlt
                       title="Share"
-                      onClick={() => console.log("Share:", quote)}
-                    />
+                      onClick={() => handleShare(quote)} 
+                    /> 
+                    */}
                   </div>
                 </div>
               );
