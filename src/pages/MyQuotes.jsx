@@ -26,7 +26,6 @@ export default function MyQuotesPage() {
   }, []);
 
   async function fetchQuotes() {
-    // Get the currently logged-in user
     const {
       data: { user },
       error: userError,
@@ -43,7 +42,6 @@ export default function MyQuotesPage() {
       return;
     }
 
-    // Fetch only quotes created by the authenticated user
     const { data, error } = await supabase
       .from("quote")
       .select("*")
@@ -63,11 +61,41 @@ export default function MyQuotesPage() {
   };
 
   const handleDelete = async (id) => {
-    const { error } = await supabase.from("quote").delete().eq("id", id);
-    if (error) {
-      console.error("Delete failed:", error);
-    } else {
-      setQuotes((prev) => prev.filter((q) => q.id !== id));
+    console.log("Attempting to delete quote with id:", id);
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        console.error("User fetch error:", userError);
+        return;
+      }
+
+      if (!user) {
+        console.warn("No authenticated user found.");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("quote")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select(); // return deleted rows info
+
+      if (error) {
+        console.error("Delete failed:", error);
+        return;
+      }
+
+      console.log("Deleted quote:", data);
+
+      // Refresh quotes list after delete
+      await fetchQuotes();
+    } catch (err) {
+      console.error("Delete exception:", err);
     }
   };
 
