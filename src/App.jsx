@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // import { supabase } from './services/supabaseClient';
 import Login from './auth/Login';
 import SignUp from './auth/Signup';
+import Logout from './auth/Logout';       
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import MyQuotes from './pages/MyQuotes';
@@ -20,6 +21,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/logout" element={<Logout />} />     
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/myquotes" element={<MyQuotes />} />
         <Route path="/mood-mirror" element={<MoodMirror />} />
@@ -28,7 +30,6 @@ function App() {
         <Route path="/search" element={<SearchQuotes />} />
         <Route path="/search-results" element={<SearchResultsPage />} />
         <Route path="/addquote" element={<AddQuotePage />} />
-
       </Routes>
     </Router>
   );

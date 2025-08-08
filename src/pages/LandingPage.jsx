@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import pencilIcon from "../assets/pencil.png";
 import collectionIcon from "../assets/collection.png";
 import moodIcon from "../assets/mood.png";
 import trackerIcon from "../assets/tracker.png";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "../services/supabaseClient"; // adjust path if needed
+import { supabase } from "../services/supabaseClient";
 
 // Keywords list
 const keywordList = [
@@ -68,14 +68,33 @@ const authorList = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const isLoggedIn = false;
 
+  // State to track if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Supabase auth session and state listener
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setIsLoggedIn(!!data.session);
+    });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Search state
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchError, setSearchError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Search handler (your existing search logic)
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
 
@@ -84,7 +103,6 @@ export default function LandingPage() {
     setLoading(true);
 
     try {
-      // Step 1: Search Supabase (case-insensitive)
       const { data: localData, error } = await supabase
         .from("quote")
         .select("*")
@@ -96,7 +114,6 @@ export default function LandingPage() {
 
       let results = localData || [];
 
-      // Step 2: Fallback to ZenQuotes text search
       if (results.length === 0) {
         const zenKey = import.meta.env.VITE_ZEN_QUOTES_API_KEY;
         const keyword = encodeURIComponent(searchTerm.toLowerCase());
@@ -157,16 +174,13 @@ export default function LandingPage() {
     setLoading(false);
   };
 
-  // Handle click on "See Full List" button
+  // Navigate to full results page
   const handleSeeFullList = () => {
     navigate("/search-results", { state: { searchTerm, fullResults: searchResults } });
   };
 
   return (
-    // <div className="landing-page-wrapper">
     <div className="flex-grow-1 d-flex flex-column min-vh-100">
-  
-
       {/* Navbar */}
       <nav className="navbar navbar-expand navbar-dark bg-dark">
         <div className="container-fluid px-5 no-margin-container">
@@ -218,7 +232,13 @@ export default function LandingPage() {
                     </button>
                     <button
                       className="btn btn-outline-light btn-lg px-4"
-                      onClick={() => navigate("/mood-mirror")}
+                      onClick={() => {
+                        if (isLoggedIn) {
+                          navigate("/mood-mirror");
+                        } else {
+                          navigate("/login");
+                        }
+                      }}
                     >
                       Try Mood Mirror
                     </button>
@@ -229,88 +249,35 @@ export default function LandingPage() {
           </div>
         </section>
 
-{/* Search Section */}
-{/* <div className="container my-2 mt-5">
-  <h4 className="text-center mb-4">Search Quotes</h4>
-  <div className="row g-2 align-items-center">
-    <div className="col-md-4">
-      <input
-        type="text"
-        className="form-control"
-        placeholder="Search by keyword or author, e.g. love, Oscar Wilde"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-    </div>
-
-    <div className="col-md-3">
-      <select
-        className="form-select"
-        aria-label="Search by Keyword"
-        onChange={(e) => {
-          if (e.target.value) setSearchTerm(e.target.value);
-        }}
-        value={keywordList.includes(searchTerm) ? searchTerm : ""}
-      >
-        <option value="">Search by Keyword</option>
-        {keywordList.map((keyword) => (
-          <option key={keyword} value={keyword}>
-            {keyword}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    <div className="col-md-3">
-      <select
-        className="form-select"
-        aria-label="Search by Author"
-        onChange={(e) => {
-          if (e.target.value) setSearchTerm(e.target.value);
-        }}
-        value={authorList.includes(searchTerm) ? searchTerm : ""}
-      >
-        <option value="">Search by Author</option>
-        {authorList.map((author) => (
-          <option key={author} value={author}>
-            {author}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    <div className="col-md-2 d-grid">
-      <button className="btn btn-primary" onClick={handleSearch}>
-        Search
-      </button>
-    </div>
-  </div>
-</div>
- */}
         {/* Search Section */}
-{/*         <div className="container my-2 mt-5">
+        <div className="container my-2 mt-5">
           <h4 className="text-center mb-4">Search Quotes</h4>
+
+          {/* Full-width Search Bar */}
           <div className="row mb-3">
-            <div className="col-md-12 mb-2">
+            <div className="col-md-12">
               <input
                 type="text"
-                className="form-control h-100"
-                placeholder="Search by keyword or full author name, e.g. love, Oscar Wilde"
+                className="form-control"
+                placeholder="Search by keyword or author, e.g. love, Oscar Wilde"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ height: "48px" }}
               />
-            </div>  */}
-            {/* Dropdowns for Keywords and Authors */}
-{/*             <div className="col-md-6 mb-2">
+            </div>
+          </div>
+
+          {/* Dropdowns + Search Button */}
+          <div className="row g-2">
+            <div className="col-md-5">
               <select
                 className="form-select"
                 aria-label="Search by Keyword"
-                onChange={(e) => {
-                  if (e.target.value) setSearchTerm(e.target.value);
-                }}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 value={keywordList.includes(searchTerm) ? searchTerm : ""}
+                style={{ height: "48px" }}
               >
-                <option value="">Search by Keyword</option>
+                <option value="">Select Keyword</option>
                 {keywordList.map((keyword) => (
                   <option key={keyword} value={keyword}>
                     {keyword}
@@ -318,16 +285,16 @@ export default function LandingPage() {
                 ))}
               </select>
             </div>
-            <div className="col-md-6 mb-2">
+
+            <div className="col-md-5">
               <select
                 className="form-select"
                 aria-label="Search by Author"
-                onChange={(e) => {
-                  if (e.target.value) setSearchTerm(e.target.value);
-                }}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 value={authorList.includes(searchTerm) ? searchTerm : ""}
+                style={{ height: "48px" }}
               >
-                <option value="">Search by Author</option>
+                <option value="">Select Author</option>
                 {authorList.map((author) => (
                   <option key={author} value={author}>
                     {author}
@@ -335,85 +302,18 @@ export default function LandingPage() {
                 ))}
               </select>
             </div>
-            <div className="col-md-12">
-              <button className="btn btn-primary w-100" onClick={handleSearch}>
+
+            <div className="col-md-2 d-grid">
+              <button
+                className="btn btn-primary"
+                onClick={handleSearch}
+                style={{ height: "48px" }}
+              >
                 Search
               </button>
             </div>
           </div>
-        </div>  */}
-        
-{/* Search Section */}
-<div className="container my-2 mt-5">
-  <h4 className="text-center mb-4">Search Quotes</h4>
-
-  {/* Full-width Search Bar */}
-  <div className="row mb-3">
-    <div className="col-md-12">
-      <input
-        type="text"
-        className="form-control"
-        placeholder="Search by keyword or author, e.g. love, Oscar Wilde"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ height: "48px" }} // uniform height
-      />
-    </div>
-  </div>
-
-  {/* Dropdowns + Search Button */}
-  <div className="row g-2">
-    <div className="col-md-5">
-      <select
-        className="form-select"
-        aria-label="Search by Keyword"
-        onChange={(e) => {
-          const value = e.target.value;
-          setSearchTerm(value);
-        }}
-        value={keywordList.includes(searchTerm) ? searchTerm : ""}
-        style={{ height: "48px" }}
-      >
-        <option value="">Select Keyword</option>
-        {keywordList.map((keyword) => (
-          <option key={keyword} value={keyword}>
-            {keyword}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    <div className="col-md-5">
-      <select
-        className="form-select"
-        aria-label="Search by Author"
-        onChange={(e) => {
-          const value = e.target.value;
-          setSearchTerm(value);
-        }}
-        value={authorList.includes(searchTerm) ? searchTerm : ""}
-        style={{ height: "48px" }}
-      >
-        <option value="">Select Author</option>
-        {authorList.map((author) => (
-          <option key={author} value={author}>
-            {author}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    <div className="col-md-2 d-grid">
-      <button
-        className="btn btn-primary"
-        onClick={handleSearch}
-        style={{ height: "48px" }}
-      >
-        Search
-      </button>
-    </div>
-  </div>
-</div>
+        </div>
 
         {/* Error Message */}
         {searchError && <div className="alert alert-danger mt-3">{searchError}</div>}
@@ -471,6 +371,7 @@ export default function LandingPage() {
         <section id="features" className="py-5 border-bottom">
           <div className="container px-5 my-5">
             <div className="row gx-5">
+              {/* Pencil Icon Feature */}
               <div className="col-lg-3 mb-5 mb-lg-0">
                 <div
                   className="feature bg-primary bg-gradient text-white rounded-3 mb-3 d-flex justify-content-center align-items-center mx-auto"
@@ -486,6 +387,7 @@ export default function LandingPage() {
                 <p>From books, films, or life</p>
               </div>
 
+              {/* Collection Icon Feature */}
               <div className="col-lg-3 mb-5 mb-lg-0">
                 <div
                   className="feature bg-primary bg-gradient text-white rounded-3 mb-3 d-flex justify-content-center align-items-center mx-auto"
@@ -501,6 +403,7 @@ export default function LandingPage() {
                 <p>Organize by Collections</p>
               </div>
 
+              {/* Mood Icon Feature */}
               <div className="col-lg-3 mb-5 mb-lg-0">
                 <div
                   className="feature bg-primary bg-gradient text-white rounded-3 mb-3 d-flex justify-content-center align-items-center mx-auto"
@@ -516,6 +419,7 @@ export default function LandingPage() {
                 <p>AI-powered emotional quotes</p>
               </div>
 
+              {/* Tracker Icon Feature */}
               <div className="col-lg-3 mb-5 mb-lg-0">
                 <div
                   className="feature bg-primary bg-gradient text-white rounded-3 mb-3 d-flex justify-content-center align-items-center mx-auto"
