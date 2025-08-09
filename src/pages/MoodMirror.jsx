@@ -239,12 +239,6 @@ const MoodMirror = () => {
             </div>
           )}
 
-          <div className="text-center mt-5">
-            <a href="#" className="fw-bold">
-              Go to my Past Reflections &gt;
-            </a>
-          </div>
-
           {showAddQuoteModal && (
             <AddQuote
               show={showAddQuoteModal}

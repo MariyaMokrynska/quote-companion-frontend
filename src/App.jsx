@@ -13,6 +13,7 @@ import SearchQuotes from './pages/SearchQuotes';
 import SearchResultsPage from './pages/SearchResults';
 import AddQuotePage from './pages/AddQuotePage';
 import './App.css';
+import MyReflections from './pages/MyReflections';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/search" element={<SearchQuotes />} />
         <Route path="/search-results" element={<SearchResultsPage />} />
         <Route path="/addquote" element={<AddQuotePage />} />
+        <Route path="/myreflections" element={<MyReflections />} />
       </Routes>
     </Router>
   );
