@@ -1,4 +1,4 @@
-.about-container {
+/* .about-container {
   max-width: 900px;
   margin: 4rem auto;
   padding: 3rem 2rem;
@@ -59,4 +59,8 @@
   .about-list li {
     font-size: 1rem;
   }
+} */
+
+.text-justify {
+  text-align: justify;
 }

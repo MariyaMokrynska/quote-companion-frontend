@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import MoodMirrorContent from "../components/MoodMirrorContent";
+import Footer from "../components/Footer";
 
 export default function PublicMoodMirror() {
   const navigate = useNavigate();
@@ -31,13 +32,7 @@ export default function PublicMoodMirror() {
       </div>
 
       {/* Footer */}
-      <footer className="py-4 bg-dark mt-auto">
-        <div className="container px-5">
-          <p className="m-0 text-center text-white">
-            Copyright &copy; 2025 Quote Companion
-          </p>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-// src/pages/MoodMirrorContent.jsx
 import React, { useState } from "react";
 import { supabase } from "../services/supabaseClient";
 import AddQuote from "../components/AddQuote";
@@ -153,6 +152,7 @@ export default function MoodMirrorContent({ isAuthed, onRequireAuth = () => {} }
         <div className="text-center mb-5">
           <button
             className="btn btn-primary"
+            style={{ padding: "1rem 2rem", fontSize: "1.5rem" }}
             onClick={handleReflect}
             disabled={loading || !reflection.trim()}
           >
@@ -186,15 +186,6 @@ export default function MoodMirrorContent({ isAuthed, onRequireAuth = () => {} }
             </p>
 
             <div className="d-flex justify-content-center gap-3 mt-3">
-              {/* <button
-                className="btn btn-outline-primary"
-                onClick={isAuthed ? handleSaveReflection : () => onRequireAuth("save-reflection")}
-                disabled={!canSave}
-                title={isAuthed ? "" : "Sign up to save reflections"}
-              >
-                Save Reflection
-              </button> */}
-
               <button
                 className="btn btn-outline-primary"
                 onClick={() => {
@@ -208,9 +199,6 @@ export default function MoodMirrorContent({ isAuthed, onRequireAuth = () => {} }
               >
                 Save Reflection
               </button>
-
-
-
 
               <button
                 type="button"

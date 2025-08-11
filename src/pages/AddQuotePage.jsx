@@ -180,7 +180,7 @@ function AddQuotePage() {
           <h2 className="fw-bold text-center mb-4">Add a New Quote</h2>
 
           {/*  Add Quote Form  */}
-          <form onSubmit={handleSubmit} className="mb-5">
+          <form onSubmit={handleSubmit} className="mb-2">
             <div className="mb-3">
               <label htmlFor="quoteText" className="form-label">Quote Text *</label>
               <textarea
@@ -223,7 +223,6 @@ function AddQuotePage() {
               </div>
             </div>
 
-            {/* <div className="row mb-3"> */}
             <div className="row g-3 mb-3 align-items-end">
 
               <div className="col-12 col-md-4">
@@ -250,7 +249,6 @@ function AddQuotePage() {
               </div>
 
               <div className="col-12 col-md-4">
-                {/* <div className="form-check mt-2 mt-md-4"> */}
                 <div className="form-check d-inline-flex align-items-center mt-2 mt-md-4">
 
                   <input
@@ -272,7 +270,7 @@ function AddQuotePage() {
             </div>
           </form>
 
-          {/* Toast (same style as modal’s) */}
+          {/* Toast */}
           {showToast && (
             <div className="toast-container position-absolute top-50 start-50 translate-middle" style={{ zIndex: 2000 }}>
               <div className="toast align-items-center text-white bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" style={{ minWidth: "250px" }}>
@@ -284,7 +282,7 @@ function AddQuotePage() {
           )}
 
           {/* -------- Search + Add from results -------- */}
-          <div className="mt-5">
+          <div className="mt-2">
             <div className="text-center mb-3">
               <hr />
               <h5 className="fw-bold mb-3">or</h5>
