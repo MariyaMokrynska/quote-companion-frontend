@@ -8,8 +8,8 @@ import Footer from "../components/Footer";
 import routes from "../routes";
 
 export default function FavoritesPage() {
-  const [favorites, setFavorites] = useState([]); // array of quote ids
-  const [favoriteQuotes, setFavoriteQuotes] = useState([]); // full quote objects
+  const [favorites, setFavorites] = useState([]);
+  const [favoriteQuotes, setFavoriteQuotes] = useState([]);
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
@@ -32,7 +32,6 @@ export default function FavoritesPage() {
 
       setUserId(user.id);
 
-      // Fetch favorite quote IDs
       const { data: favData, error: favError } = await supabase
         .from("favorite")
         .select("quote_id")
@@ -53,7 +52,6 @@ export default function FavoritesPage() {
         return;
       }
 
-      // Fetch full quotes data for these favorite IDs
       const { data: quotesData, error: quotesError } = await supabase
         .from("quote")
         .select("*")
@@ -120,37 +118,72 @@ export default function FavoritesPage() {
         <Navbar />
 
         <div className="flex-grow-1 p-4">
-          <h2 className="text-center fw-bold">My Favorite Quotes</h2>
-          <p className="text-center">Quotes you have marked as favorite.</p>
+          <h2 className="text-center fw-bold mb-3">My Favorite Quotes</h2>
+          <p className="text-center text-muted mb-4">
+            Quotes you have marked as favorite.
+          </p>
 
-          <section className="quotes-grid mt-4">
-            {favoriteQuotes.length === 0 && (
-              <p className="text-center text-muted">You have no favorite quotes yet.</p>
-            )}
-            {favoriteQuotes.map((quote) => {
-              return (
-                <div key={quote.id} className="quote-card">
-                  <p className="quote-text">“{quote.text}”</p>
-                  <p className="quote-author">
-                    <em>{quote.author || "Unknown"}</em>
-                  </p>
-                  <span className="quote-timestamp">
-                    {formatDistanceToNow(new Date(quote.created_at), {
-                      addSuffix: true,
-                    })}
-                  </span>
+          {favoriteQuotes.length === 0 ? (
+            <div className="text-center text-secondary mt-5">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+                alt="No favorites"
+                style={{ width: "100px", opacity: 0.3 }}
+                className="mb-3"
+              />
+              <p>You have no favorite quotes yet.</p>
+            </div>
+          ) : (
+            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+              {favoriteQuotes.map((quote) => (
+                <div key={quote.id} className="col">
+                  <div
+                    className="card h-100 shadow-sm"
+                    style={{ cursor: "default", transition: "transform 0.2s" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "scale(1.03)";
+                      e.currentTarget.style.boxShadow =
+                        "0 8px 16px rgba(0,0,0,0.15)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "scale(1)";
+                      e.currentTarget.style.boxShadow = "";
+                    }}
+                  >
+                    <div className="card-body d-flex flex-column">
+                      <blockquote className="blockquote mb-3 flex-grow-1">
+                        <p className="mb-3" style={{ fontSize: "1.15rem", lineHeight: "1.4" }}>
+                          “{quote.text}”
+                        </p>
+                        <footer className="blockquote-footer" style={{ marginTop: "auto" }}>
+                          <span className="badge bg-primary px-2 py-1" style={{ fontSize: "0.85rem" }}>
+                            {quote.author || "Unknown"}
+                          </span>
+                        </footer>
+                      </blockquote>
 
-                  <div className="quote-actions">
-                    <FaHeart
-                      title="Remove Favorite"
-                      onClick={() => handleFavoriteToggle(quote)}
-                      style={{ color: "red", cursor: "pointer" }}
-                    />
+                      <div className="d-flex justify-content-between align-items-center mt-auto">
+                        <small className="text-muted">
+                          {formatDistanceToNow(new Date(quote.created_at), {
+                            addSuffix: true,
+                          })}
+                        </small>
+
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          title="Remove from favorites"
+                          onClick={() => handleFavoriteToggle(quote)}
+                        >
+                          <FaHeart /> Remove
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              );
-            })}
-          </section>
+              ))}
+            </div>
+          )}
         </div>
 
         <Footer />
@@ -158,3 +191,5 @@ export default function FavoritesPage() {
     </div>
   );
 }
+
+
