@@ -194,9 +194,18 @@ export default function LandingPage() {
               <li className="nav-item">
                 <Link className="nav-link" to="/">Home</Link>
               </li>
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <Link className="nav-link" to="/about">About</Link>
+              </li> */}
+              <li className="nav-item">
+                <Link
+                  className="nav-link"
+                  to={isLoggedIn ? "/about" : "/about-public"}
+                >
+                  About
+                </Link>
               </li>
+
               <li className="nav-item">
                 <Link className="nav-link" to="/signup">Sign Up</Link>
               </li>
@@ -369,7 +378,6 @@ export default function LandingPage() {
         )}
 
         {/* Features Section */}
-        {/* <section id="features" className="py-5 border-bottom"> */}
         <section id="features" className="border-bottom">
 
           <div className="container px-5 my-5">

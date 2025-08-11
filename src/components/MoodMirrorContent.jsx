@@ -126,7 +126,7 @@ export default function MoodMirrorContent({ isAuthed, onRequireAuth = () => {} }
     }
   };
 
-  const canSave = isAuthed && reflection.trim() && quoteOptions.length > 0;
+  // const canSave = isAuthed && reflection.trim() && quoteOptions.length > 0;
 
   return (
     <>

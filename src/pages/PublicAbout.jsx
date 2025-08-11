@@ -9,7 +9,14 @@ export default function AboutPublic() {
       <div className="flex-grow-1">
         <AboutContent />
       </div>
-      <Footer />
+
+      <footer className="bg-dark border-top fixed-bottom py-2">
+        <Footer />
+      </footer>
+
+
+      {/* <Footer /> */}
+
     </div>
   );
 }
