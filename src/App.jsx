@@ -15,6 +15,9 @@ import AddQuotePage from './pages/AddQuotePage';
 import './App.css';
 import MyReflections from './pages/MyReflections';
 import PublicMoodMirror from "./pages/PublicMoodMirror";
+import PublicAbout from "./pages/PublicAbout";
+
+
 
 function App() {
   return (
@@ -28,6 +31,7 @@ function App() {
         <Route path="/myquotes" element={<MyQuotes />} />
         <Route path="/mycollections" element={<MyCollections />} />
         <Route path="/about" element={<About />} />
+        <Route path="/about-public" element={<PublicAbout />} />
         <Route path="/search" element={<SearchQuotes />} />
         <Route path="/search-results" element={<SearchResultsPage />} />
         <Route path="/addquote" element={<AddQuotePage />} />
