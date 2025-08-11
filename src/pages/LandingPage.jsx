@@ -236,7 +236,7 @@ export default function LandingPage() {
                         if (isLoggedIn) {
                           navigate("/mood-mirror");
                         } else {
-                          navigate("/login");
+                          navigate("/mood-mirror-public");
                         }
                       }}
                     >

@@ -14,6 +14,7 @@ import SearchResultsPage from './pages/SearchResults';
 import AddQuotePage from './pages/AddQuotePage';
 import './App.css';
 import MyReflections from './pages/MyReflections';
+import PublicMoodMirror from "./pages/PublicMoodMirror";
 
 function App() {
   return (
@@ -25,13 +26,14 @@ function App() {
         <Route path="/logout" element={<Logout />} />     
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/myquotes" element={<MyQuotes />} />
-        <Route path="/mood-mirror" element={<MoodMirror />} />
         <Route path="/mycollections" element={<MyCollections />} />
         <Route path="/about" element={<About />} />
         <Route path="/search" element={<SearchQuotes />} />
         <Route path="/search-results" element={<SearchResultsPage />} />
         <Route path="/addquote" element={<AddQuotePage />} />
         <Route path="/myreflections" element={<MyReflections />} />
+        <Route path="/mood-mirror" element={<MoodMirror />} />
+        <Route path="/mood-mirror-public" element={<PublicMoodMirror />} />
       </Routes>
     </Router>
   );
