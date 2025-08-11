@@ -8,8 +8,12 @@ import {
   FaTrash,
   FaHeart,
   FaPlusSquare,
-  // FaThLarge,  // Removed view collection icon
-  // FaShareAlt, // Share icon will be commented in JSX
+  FaShareAlt,
+  FaLink,
+  FaWhatsapp,
+  FaFacebookF,
+  // Removed Messenger icon import since we won't use fb-messenger://
+  FaTwitter,
 } from "react-icons/fa";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -35,6 +39,9 @@ export default function MyQuotesPage() {
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
   const [newCollectionName, setNewCollectionName] = useState("");
   const [quoteToAdd, setQuoteToAdd] = useState(null);
+
+  const [shareOpenId, setShareOpenId] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const collectionModalRef = useRef(null);
   const collectionModalInstance = useRef(null);
@@ -246,7 +253,7 @@ export default function MyQuotesPage() {
       if (updateErr) throw updateErr;
 
       alert("Quote added to collection!");
-      setQuoteToAdd(null); // This will hide the modal & reset selections
+      setQuoteToAdd(null); // hide modal & reset selections
       await fetchQuotes(collectionId, userId);
     } catch (err) {
       console.error("handleAddToCollectionConfirm error:", err);
@@ -260,12 +267,30 @@ export default function MyQuotesPage() {
     fetchQuotes(collectionId, userId);
   };
 
-  /*
-  // Commented out handleShare handler
-  const handleShare = (quote) => {
-    console.log("Share:", quote);
+  // Fixed base URL as requested
+  const baseUrl = "https://quote-companion-frontend.onrender.com/myquotes";
+
+  // Compose share URL for a quote (with optional query param)
+  const getQuoteUrl = (quote) => `${baseUrl}?quoteId=${quote.id}`;
+
+  const toggleShare = (id) => {
+    if (shareOpenId === id) {
+      setShareOpenId(null);
+      setCopySuccess(false);
+    } else {
+      setShareOpenId(id);
+      setCopySuccess(false);
+    }
   };
-  */
+
+  // Copy formatted quote card (quote text and author)
+  const copyQuoteCard = (quote) => {
+    const textToCopy = `“${quote.text}”\n— ${quote.author || "Unknown"}`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    });
+  };
 
   return (
     <div className="d-flex">
@@ -303,8 +328,14 @@ export default function MyQuotesPage() {
           <section className="quotes-grid mt-4">
             {quotes.map((quote) => {
               const isFavorited = favorites.includes(quote.id);
+              const shareUrl = getQuoteUrl(quote);
+
               return (
-                <div key={quote.id} className="quote-card">
+                <div
+                  key={quote.id}
+                  className="quote-card"
+                  style={{ position: "relative" }}
+                >
                   <p className="quote-text">“{quote.text}”</p>
                   <p className="quote-author">
                     <em>{quote.author || "Unknown"}</em>
@@ -333,13 +364,168 @@ export default function MyQuotesPage() {
                       title="Add to Collection"
                       onClick={() => handleAddToCollectionClick(quote)}
                     />
-                    {/* 
                     <FaShareAlt
                       title="Share"
-                      onClick={() => handleShare(quote)} 
-                    /> 
-                    */}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => toggleShare(quote.id)}
+                    />
                   </div>
+
+                  {shareOpenId === quote.id && (
+                    <div
+                      className="share-popup"
+                      style={{
+                        position: "absolute",
+                        bottom: "45px",
+                        left: "10px",
+                        background: "#fff",
+                        border: "1px solid #ccc",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                        zIndex: 100,
+                        width: "280px",
+                        display: "flex",
+                        justifyContent: "space-around",
+                        alignItems: "center",
+                      }}
+                    >
+                      {/* Copy Card */}
+                      <div
+                        style={{ cursor: "pointer", textAlign: "center" }}
+                        onClick={() => copyQuoteCard(quote)}
+                        title="Copy Quote Text"
+                      >
+                        <div
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            background: "#f0f0f0",
+                            borderRadius: "8px",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          <FaLink />
+                        </div>
+                        <small
+                          style={{ fontSize: "10px", userSelect: "none" }}
+                        >
+                          {copySuccess ? "Copied!" : "Copy Quote"}
+                        </small>
+                      </div>
+
+                      {/* WhatsApp */}
+                      <a
+                        href={`https://wa.me/?text=${encodeURIComponent(
+                          `${quote.text} — ${quote.author || "Unknown"}\n${shareUrl}`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          textDecoration: "none",
+                          color: "inherit",
+                          textAlign: "center",
+                        }}
+                        title="WhatsApp"
+                      >
+                        <div
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            background: "#25D366",
+                            borderRadius: "50%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            color: "white",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          <FaWhatsapp />
+                        </div>
+                        <small
+                          style={{ fontSize: "10px", userSelect: "none" }}
+                        >
+                          WhatsApp
+                        </small>
+                      </a>
+
+                      {/* Facebook */}
+                      <a
+                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                          shareUrl
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          textDecoration: "none",
+                          color: "inherit",
+                          textAlign: "center",
+                        }}
+                        title="Facebook"
+                      >
+                        <div
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            background: "#1877F2",
+                            borderRadius: "50%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            color: "white",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          <FaFacebookF />
+                        </div>
+                        <small
+                          style={{ fontSize: "10px", userSelect: "none" }}
+                        >
+                          Facebook
+                        </small>
+                      </a>
+
+                      {/* X (Twitter) */}
+                      <a
+                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                          `${quote.text} — ${quote.author || "Unknown"}`
+                        )}&url=${encodeURIComponent(shareUrl)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          textDecoration: "none",
+                          color: "inherit",
+                          textAlign: "center",
+                        }}
+                        title="X"
+                      >
+                        <div
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            background: "#000",
+                            borderRadius: "50%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            color: "white",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          <FaTwitter />
+                        </div>
+                        <small
+                          style={{ fontSize: "10px", userSelect: "none" }}
+                        >
+                          X
+                        </small>
+                      </a>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -435,6 +621,8 @@ export default function MyQuotesPage() {
     </div>
   );
 }
+
+
 // import React, { useEffect, useState, useRef } from "react";
 // import { useLocation, useNavigate } from "react-router-dom";
 // import { supabase } from "../services/supabaseClient";
