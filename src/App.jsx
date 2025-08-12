@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import { supabase } from './services/supabaseClient';
 import Login from './auth/Login';
 import SignUp from './auth/Signup';
 import Logout from './auth/Logout';       
@@ -16,8 +15,6 @@ import './App.css';
 import MyReflections from './pages/MyReflections';
 import PublicMoodMirror from "./pages/PublicMoodMirror";
 import PublicAbout from "./pages/PublicAbout";
-
-
 import MyFavorites from './pages/MyFavorites';
 
 function App() {

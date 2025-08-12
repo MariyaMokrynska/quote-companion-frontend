@@ -5,18 +5,16 @@ import AboutContent from "../components/AboutContent";
 export default function AboutPublic() {
   return (
     <div className="d-flex flex-column" style={{ minHeight: "100vh" }}>
-      <PublicNavbar />
-      <div className="flex-grow-1">
-        <AboutContent />
+      <div className="position-sticky top-0 bg-white z-3 shadow-sm">
+        <PublicNavbar />
       </div>
 
-      <footer className="bg-dark border-top fixed-bottom py-2">
-        <Footer />
-      </footer>
-
+      <div className="flex-grow-1 pt-5 pt-md-4">
+        <AboutContent compact />
+      </div>
 
       {/* <Footer /> */}
-
+      <Footer />
     </div>
   );
 }

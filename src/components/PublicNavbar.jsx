@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function PublicNavbar() {
   return (
-    <nav className="navbar navbar-expand navbar-dark bg-dark fixed-top">
+    <nav className="navbar navbar-expand navbar-dark bg-dark ">
       <div className="container-fluid px-5">
         <div className="navbar-brand">
           <span className="quote">Quote</span> <span className="companion">Companion</span>
