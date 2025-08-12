@@ -18,6 +18,7 @@ import PublicMoodMirror from "./pages/PublicMoodMirror";
 import PublicAbout from "./pages/PublicAbout";
 
 
+import MyFavorites from './pages/MyFavorites';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         <Route path="/myreflections" element={<MyReflections />} />
         <Route path="/mood-mirror" element={<MoodMirror />} />
         <Route path="/mood-mirror-public" element={<PublicMoodMirror />} />
+        <Route path="/favorites" element={<MyFavorites />} />
       </Routes>
     </Router>
   );
