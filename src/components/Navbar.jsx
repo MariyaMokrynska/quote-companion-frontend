@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const NavbarComponent = () => {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark" >
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark position-sticky" >
       <div className="w-100 px-4 d-flex justify-content-between align-items-center">
         <NavLink className="navbar-brand" to="/">
           Quote Companion

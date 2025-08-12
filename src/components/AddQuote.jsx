@@ -263,7 +263,6 @@ const AddQuote = ({
                 {/* Action Buttons */}
                 <div className="text-center">
                   <button type="submit" className="btn btn-primary me-2">Save Quote</button>
-                  {/* <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button> */}
                   <button type="button" className="btn btn-secondary" onClick={onClose}>
                     Cancel
                   </button>

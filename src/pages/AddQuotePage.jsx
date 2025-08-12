@@ -179,8 +179,8 @@ function AddQuotePage() {
           {/* Title */}
           <h2 className="fw-bold text-center mb-4">Add a New Quote</h2>
 
-          {/* ------- Add Quote Form (unchanged layout/logic) ------- */}
-          <form onSubmit={handleSubmit} className="mb-5">
+          {/*  Add Quote Form  */}
+          <form onSubmit={handleSubmit} className="mb-2">
             <div className="mb-3">
               <label htmlFor="quoteText" className="form-label">Quote Text *</label>
               <textarea
@@ -194,7 +194,7 @@ function AddQuotePage() {
             </div>
 
             <div className="row mb-3">
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label className="form-label">Author</label>
                 <input
                   type="text"
@@ -203,7 +203,7 @@ function AddQuotePage() {
                   onChange={(e) => setAuthor(e.target.value)}
                 />
               </div>
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label className="form-label">Source</label>
                 <input
                   type="text"
@@ -212,10 +212,20 @@ function AddQuotePage() {
                   onChange={(e) => setSource(e.target.value)}
                 />
               </div>
+              <div className="col-md-4">
+                <label className="form-label">Tags (comma-separated)</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="row mb-3">
-              <div className="col-md-6">
+            <div className="row g-3 mb-3 align-items-end">
+
+              <div className="col-12 col-md-4">
                 <label className="form-label">Select Collection</label>
                 <select
                   className="form-select"
@@ -228,8 +238,8 @@ function AddQuotePage() {
                   ))}
                 </select>
               </div>
-              <div className="col-md-6">
-                <label className="form-label">Or Add New Collection</label>
+              <div className="col-12 col-md-4">
+                <label className="form-label">Add New Collection</label>
                 <input
                   type="text"
                   className="form-control"
@@ -237,28 +247,18 @@ function AddQuotePage() {
                   onChange={(e) => setNewCollectionName(e.target.value)}
                 />
               </div>
-            </div>
 
-            <div className="row align-items-end mb-3">
-              <div className="col-md-9">
-                <label className="form-label">Tags (comma-separated)</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                />
-              </div>
-              <div className="col-md-3 d-flex align-items-center">
-                <div className="form-check">
+              <div className="col-12 col-md-4">
+                <div className="form-check d-inline-flex align-items-center mt-2 mt-md-4">
+
                   <input
-                    className="form-check-input"
+                    className="form-check-input me-2"
                     type="checkbox"
                     id="isFavorite"
                     checked={isFavorite}
                     onChange={(e) => setIsFavorite(e.target.checked)}
                   />
-                  <label className="form-check-label" htmlFor="isFavorite">
+                  <label className="form-check-label mb-0" htmlFor="isFavorite">
                     Add to Favorites
                   </label>
                 </div>
@@ -270,7 +270,7 @@ function AddQuotePage() {
             </div>
           </form>
 
-          {/* Toast (same style as modal’s) */}
+          {/* Toast */}
           {showToast && (
             <div className="toast-container position-absolute top-50 start-50 translate-middle" style={{ zIndex: 2000 }}>
               <div className="toast align-items-center text-white bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" style={{ minWidth: "250px" }}>
@@ -282,7 +282,7 @@ function AddQuotePage() {
           )}
 
           {/* -------- Search + Add from results -------- */}
-          <div className="mt-5">
+          <div className="mt-2">
             <div className="text-center mb-3">
               <hr />
               <h5 className="fw-bold mb-3">or</h5>

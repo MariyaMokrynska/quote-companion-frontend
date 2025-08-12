@@ -6,6 +6,7 @@ import moodIcon from "../assets/mood.png";
 import trackerIcon from "../assets/tracker.png";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
+import Footer from "../components/Footer";
 
 // Keywords list
 const keywordList = [
@@ -193,9 +194,18 @@ export default function LandingPage() {
               <li className="nav-item">
                 <Link className="nav-link" to="/">Home</Link>
               </li>
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <Link className="nav-link" to="/about">About</Link>
+              </li> */}
+              <li className="nav-item">
+                <Link
+                  className="nav-link"
+                  to={isLoggedIn ? "/about" : "/about-public"}
+                >
+                  About
+                </Link>
               </li>
+
               <li className="nav-item">
                 <Link className="nav-link" to="/signup">Sign Up</Link>
               </li>
@@ -209,7 +219,7 @@ export default function LandingPage() {
 
       <main className="landing-main-content">
         {/* Hero Section */}
-        <section className="bg-dark py-5">
+        <section className="bg-dark">
           <div className="container px-5">
             <div className="row gx-5 justify-content-center">
               <div className="col-lg-6">
@@ -236,7 +246,7 @@ export default function LandingPage() {
                         if (isLoggedIn) {
                           navigate("/mood-mirror");
                         } else {
-                          navigate("/login");
+                          navigate("/mood-mirror-public");
                         }
                       }}
                     >
@@ -253,7 +263,7 @@ export default function LandingPage() {
         <div className="container my-2 mt-5">
           <h4 className="text-center mb-4">Search Quotes</h4>
 
-          {/* Full-width Search Bar */}
+          {/* Full-width Search Bar
           <div className="row mb-3">
             <div className="col-md-12">
               <input
@@ -265,7 +275,7 @@ export default function LandingPage() {
                 style={{ height: "48px" }}
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Dropdowns + Search Button */}
           <div className="row g-2">
@@ -368,7 +378,8 @@ export default function LandingPage() {
         )}
 
         {/* Features Section */}
-        <section id="features" className="py-5 border-bottom">
+        <section id="features" className="border-bottom">
+
           <div className="container px-5 my-5">
             <div className="row gx-5">
               {/* Pencil Icon Feature */}
@@ -440,14 +451,7 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="py-5 bg-dark">
-        <div className="container px-5">
-          <p className="m-0 text-center text-white">Copyright &copy; 2025 Quote Companion</p>
-          <p className="m-0 text-center text-white">
-            Made by Jane K & Mariya M | ADA Developers Academy C23
-          </p>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 }
