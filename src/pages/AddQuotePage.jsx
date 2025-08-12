@@ -21,7 +21,7 @@ const keywordList = [
 ];
 
 const authorList = [
-  "A.a. Milne","Abraham Lincoln","Alan Watts","Albert Einstein","Albus Dumbledore","Amelia Earhart",
+  "Abraham Lincoln","Alan Watts","Albert Einstein","Albus Dumbledore","Amelia Earhart",
   "Aristotle","Audrey Hepburn","Buddha","Carl Jung","Confucius","Dalai Lama","Eleanor Roosevelt",
   "Emily Dickinson","Epictetus","Franklin D. Roosevelt","Gandhi","Johann Wolfgang von Goethe",
   "John Lennon","Kahlil Gibran","Lao Tzu","Marcus Aurelius","Maya Angelou","Nelson Mandela",

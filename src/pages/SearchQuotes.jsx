@@ -20,7 +20,6 @@ const keywordList = [
 ];
 
 const authorList = [
-  "A.A. Milne",
   "Abraham Lincoln",
   "Adi Da Samraj",
   "Alan Watts",

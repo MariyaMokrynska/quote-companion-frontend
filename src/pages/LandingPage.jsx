@@ -18,7 +18,7 @@ const keywordList = [
 
 // Authors list
 const authorList = [
-  "A.a. Milne", "Abraham Lincoln", "Adi Da Samraj", "Alan Watts", "Albert Einstein", "Albus Dumbledore",
+  "Abraham Lincoln", "Adi Da Samraj", "Alan Watts", "Albert Einstein", "Albus Dumbledore",
   "Alexander Graham Bell", "Alexander Pope", "Alexandre Dumas", "Alfred Adler", "Amelia Earhart",
   "Andrew Carnegie", "Andrew Hendrixson", "Anita Krizzan", "Anne Frank", "Anne Wilson Schaef",
   "Aristophanes", "Aristotle", "Arnold Schwarzenegger", "Audrey Hepburn", "Ayn Rand", "Babe Ruth",
