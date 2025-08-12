@@ -20,32 +20,35 @@ const EditQuote = ({
   const [modalInstance, setModalInstance] = useState(null);
 
   // Show modal on mount
-  useEffect(() => {
-    const modalEl = document.getElementById("editQuoteModal");
-    if (modalEl) {
-      const modal = new Modal(modalEl, { backdrop: "static" });
-      modal.show();
-      setModalInstance(modal);
-    }
+useEffect(() => {
+  const modalEl = document.getElementById("editQuoteModal");
+  if (modalEl) {
+    const modal = new Modal(modalEl, { backdrop: "static" });
+    modal.show();
+    setModalInstance(modal);
+  }
 
-    return () => {
-      cleanupModal();
-    };
-  }, []);
-
-  const cleanupModal = () => {
-    document.body.classList.remove("modal-open");
-    const backdrops = document.querySelectorAll(".modal-backdrop");
-    backdrops.forEach((el) => el.remove());
+  return () => {
+    // Only clean up if component unmounts unexpectedly
+    cleanupModal();
   };
+}, []);
 
-  const closeModal = () => {
-    if (modalInstance) {
-      modalInstance.hide();
-      cleanupModal();
-    }
-    if (onClose) onClose();
-  };
+const cleanupModal = () => {
+  // Restore Bootstrap defaults
+  document.body.classList.remove("modal-open");
+  document.body.style.removeProperty("padding-right"); 
+  const backdrops = document.querySelectorAll(".modal-backdrop");
+  backdrops.forEach((el) => el.remove());
+};
+
+const closeModal = () => {
+  if (modalInstance) {
+    modalInstance.hide(); 
+  }
+  if (onClose) onClose();
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
