@@ -273,3 +273,5 @@ Mariya M. – Full-stack developer, UI design & core functionality
 
 📜 License
 MIT License
+
+Deployed app: https://quote-companion-frontend.onrender.com/
