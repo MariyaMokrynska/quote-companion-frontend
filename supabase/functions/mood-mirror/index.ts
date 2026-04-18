@@ -10,7 +10,7 @@ const cors = {
 // @ts-ignore
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: cors });
+    return new Response("ok", { headers: cors });
   }
 
   try {
