@@ -38,8 +38,14 @@ export default function MoodMirrorContent({ isAuthed, onRequireAuth = () => {} }
     setLabels([]);
 
     try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const functionUrl = `${supabaseUrl.replace(
+      ".supabase.co",
+      ".functions.supabase.co"
+      )}/mood-mirror`;
+
       const response = await fetch(
-        "https://tqwtqkuompruqxnddtso.functions.supabase.co/mood-mirror",
+        functionUrl,
         {
           method: "POST",
           headers: {

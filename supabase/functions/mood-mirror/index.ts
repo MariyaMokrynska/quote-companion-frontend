@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
         model: "gpt-4o", // or "gpt-4o-mini" if you prefer
         messages,
         temperature: 0.2,
-        response_format: "json", // ✅ Corrected (you had invalid format before)
+        response_format: { type: "json_object" }
       }),
     });
 
