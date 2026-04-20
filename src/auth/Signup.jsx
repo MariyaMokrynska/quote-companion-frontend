@@ -59,7 +59,7 @@ function SignUp() {
       return;
     }
 
-/*     const { error: insertError } = await supabase.from('user').insert({
+    const { error: insertError } = await supabase.from('user').insert({
       id: userId,
       name,
       email,
@@ -69,7 +69,7 @@ function SignUp() {
       setErrorMsg(insertError.message);
       return;
     }
-*/
+
 
     setEmail('');
     setPassword('');
