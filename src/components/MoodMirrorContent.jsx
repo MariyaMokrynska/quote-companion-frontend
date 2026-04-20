@@ -39,7 +39,7 @@ export default function MoodMirrorContent({ isAuthed, onRequireAuth = () => {} }
 
     try {
       const response = await fetch(
-        "https://nviqdmesbckjzncanimt.functions.supabase.co/mood-mirror",
+        "https://tqwtqkuompruqxnddtso.functions.supabase.co/mood-mirror",
         {
           method: "POST",
           headers: {
